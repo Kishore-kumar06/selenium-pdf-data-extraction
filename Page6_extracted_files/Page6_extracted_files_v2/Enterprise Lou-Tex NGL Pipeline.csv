@@ -1,0 +1,3 @@
+Pipeline Name,PointfOrigin,PointOfDestination,LiquidTariffNumber,Effective Date,End Date,TariffStatus,RateTier,RateType,TermYear,MinBPD,MaxBPD,AcreageDedicationMinAcres,AcreageDedicationMaxAcres,LiquidRateCentsPerBbl,SurchargeCentsPerBbl,LiquidFuelType
+ENTERPRISE LOU-TEX NGL PIPELINE L.P.,"Mont Belvieu Caverns Mont Belvieu (Chambers County), Texas","Sasol East Lake Charles Lake Charles (Calcasieu Parish), Louisiana",,01-07-2025,,Effective,,,,,,,,[I] $4.0546,,Crude
+ENTERPRISE LOU-TEX NGL PIPELINE L.P.,"Mont Belvieu Caverns Mont Belvieu (Chambers County), Texas","Sasol East Lake Charles Lake Charles (Calcasieu Parish), Louisiana",,01-07-2025,,Effective,,,,,,,,[I] $1.3620,,Crude

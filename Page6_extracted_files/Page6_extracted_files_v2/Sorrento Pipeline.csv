@@ -1,0 +1,9 @@
+Pipeline Name,PointfOrigin,PointOfDestination,LiquidTariffNumber,Effective Date,End Date,TariffStatus,RateTier,RateType,TermYear,MinBPD,MaxBPD,AcreageDedicationMinAcres,AcreageDedicationMaxAcres,LiquidRateCentsPerBbl,SurchargeCentsPerBbl,LiquidFuelType
+"SORRENTO PIPELINE COMPANY, LLC","Napoleonville, Assumption Parish, Louisiana","Anse La Butte, St. Martin Parish, Louisiana",,01-07-2025,,Effective,,,,,,,,2.70,,Crude
+"SORRENTO PIPELINE COMPANY, LLC","Napoleonville, Assumption Parish, Louisiana","Grangeville, St. Helena Parish, Louisiana",,01-07-2025,,Effective,,,,,,,,5.74,,Crude
+"SORRENTO PIPELINE COMPANY, LLC","Geismar, Ascension Parish, Louisiana","Grangeville, St. Helena Parish, Louisiana",,01-07-2025,,Effective,,,,,,,,5.08,,Crude
+"SORRENTO PIPELINE COMPANY, LLC","Sorrento, Ascension Parish, Louisiana","Grangeville, St. Helena Parish, Louisiana",,01-07-2025,,Effective,,,,,,,,4.53,,Crude
+"SORRENTO PIPELINE COMPANY, LLC","Garyville, St. John the Baptist Parish, Louisiana","Grangeville, St. Helena Parish, Louisiana",,01-07-2025,,Effective,,,,,,,,5.08,,Crude
+"SORRENTO PIPELINE COMPANY, LLC","Norco, St. Charles Parish, Louisiana","Grangeville, St. Helena Parish, Louisiana",,01-07-2025,,Effective,,,,,,,,6.36,,Crude
+"SORRENTO PIPELINE COMPANY, LLC","Geismar, Ascension Parish, Louisiana","Sorrento, Ascension Parish, Louisiana",,01-07-2025,,Effective,,,,,,,,2.56,,Crude
+"SORRENTO PIPELINE COMPANY, LLC","Garyville, St. John the Baptist Parish, Louisiana","Sorrento, Ascension Parish, Louisiana",,01-07-2025,,Effective,,,,,,,,2.56,,Crude

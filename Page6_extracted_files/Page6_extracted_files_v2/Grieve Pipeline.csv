@@ -1,0 +1,4 @@
+Pipeline Name,PointfOrigin,PointOfDestination,LiquidTariffNumber,Effective Date,End Date,TariffStatus,RateTier,RateType,TermYear,MinBPD,MaxBPD,AcreageDedicationMinAcres,AcreageDedicationMaxAcres,LiquidRateCentsPerBbl,SurchargeCentsPerBbl,LiquidFuelType
+"Grieve Pipeline, LLC Grieve Pipeline, LLC",Receipt Point,Delivery Point,,01-07-2025,,Effective,,LOCAL AND PROPORTIONAL PIPELINE RATES,,,,,,[I] $3.5500,,Crude
+"Grieve Pipeline, LLC Grieve Pipeline, LLC",From,To,,01-07-2025,,Effective,,LOCAL AND PROPORTIONAL PIPELINE RATES,,,,,,Rate,,Crude
+"Grieve Pipeline, LLC Grieve Pipeline, LLC",Receipt Point,Delivery Point,,01-07-2025,,Effective,,LOCAL AND PROPORTIONAL PIPELINE RATES,,,,,,[I] $3.5400,,Crude

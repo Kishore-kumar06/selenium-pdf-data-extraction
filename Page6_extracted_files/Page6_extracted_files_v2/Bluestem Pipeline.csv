@@ -1,0 +1,4 @@
+Pipeline Name,PointfOrigin,PointOfDestination,LiquidTariffNumber,Effective Date,End Date,TariffStatus,RateTier,RateType,TermYear,MinBPD,MaxBPD,AcreageDedicationMinAcres,AcreageDedicationMaxAcres,LiquidRateCentsPerBbl,SurchargeCentsPerBbl,LiquidFuelType
+BLUESTEM PIPELINE LLC,"Conway, Kansas","Kingfisher, Oklahoma",,01-07-2025,,Effective,,ITEM NO. - 105 – UNCOMMITTED RATES UNCOMMITTED RATES,,,,,,[I] 327.67,,Crude
+BLUESTEM PIPELINE LLC,"Conway, Kansas","Kingfisher, Oklahoma",,01-07-2025,,Effective,,ITEM NO. - 105 – UNCOMMITTED RATES UNCOMMITTED RATES,,,,,,[I] 146.96,,Crude
+BLUESTEM PIPELINE LLC,"Conway, Kansas","Kingfisher, Oklahoma",,01-07-2025,,Effective,,ITEM NO. 115 FIRM RATES FIRM RATES (1),,,,,,[I] 328.67,,Crude

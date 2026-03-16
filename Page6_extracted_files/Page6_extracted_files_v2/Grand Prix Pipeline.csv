@@ -1,0 +1,3 @@
+Pipeline Name,PointfOrigin,PointOfDestination,LiquidTariffNumber,Effective Date,End Date,TariffStatus,RateTier,RateType,TermYear,MinBPD,MaxBPD,AcreageDedicationMinAcres,AcreageDedicationMaxAcres,LiquidRateCentsPerBbl,SurchargeCentsPerBbl,LiquidFuelType
+GRAND PRIX PIPELINE LLC,"Sendero Carlsbad Processing Plant, Eddy County, New Mexico","Targa Downstream LLC’s storage facility at Mont Belvieu (Chambers County, TX)",,01-10-2025,,Effective,,TABLE OF RATES FROM TO RATE,,,,,,[U] $0.1061,,Crude
+GRAND PRIX PIPELINE LLC,"[N] South Lea and Southeast Eddy County Plants, New Mexico","[N] Targa Downstream LLC’s storage facility at Mont Belvieu (Chambers County, TX)",,01-10-2025,,Effective,,TABLE OF RATES FROM TO RATE,,,,,,[N] $0.1000,,Crude

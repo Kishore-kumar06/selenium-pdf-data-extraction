@@ -6,8 +6,8 @@ from datetime import datetime
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
 
-root = tk.Tk()
-root.withdraw()
+# root = tk.Tk()
+# root.withdraw()
 
 def get_transformed_files(curr_path):
     try:
@@ -30,12 +30,11 @@ def extract_pipeline_metadata(pdf):
 
     # Pipeline Name
     match_pipeline = re.search(r"(.*Pipeline.*(?:LLC|LP|L.P|L.L.C|Inc|INC|Ltd|COMPANY))", page1_text, re.IGNORECASE)
+    
     if match_pipeline:
         pipeline_name = match_pipeline.group(1).strip().replace('"','')
 
-    # Effective Date
-        match_effective = re.search(r"\bEffective\b\s*:?\s*([A-Za-z]+\s+\d{1,2},\s+\d{4})", page1_text, re.IGNORECASE)
-
+        match_effective = re.search(r"\bEffective(?:\s+Date)?\b\s*:?\s*([A-Za-z]+\s+\d{1,2},\s+\d{4})",page1_text,re.IGNORECASE)
         if match_effective:
             effective_date = match_effective.group(1)
         # Convert to datetime
@@ -45,6 +44,60 @@ def extract_pipeline_metadata(pdf):
         effective_date = dt_obj.strftime("%d-%m-%Y")
 
     return pipeline_name, effective_date
+
+
+
+def extract_pipelinename_metadata(pdf):
+    pipeline_name = ""
+
+    page1_text = pdf.pages[0].extract_text()
+    lines = [line.strip() for line in page1_text.splitlines() if line.strip()]
+
+    suffix_pattern = r"(?:LLC|LP|L\.P\.?|L\.L\.C\.?|Inc|INC|Ltd|COMPANY)"
+    
+    full_pipeline_pattern = re.compile(
+        rf"^.*(?:Pipeline)?.*{suffix_pattern}\.?$",
+        re.IGNORECASE
+    )
+
+    continuation_pattern = re.compile(
+        rf"^(?:PIPELINE,\s+)?{suffix_pattern}\.?$",
+        re.IGNORECASE
+    )
+
+    for i, line in enumerate(lines):
+        clean_line = re.sub(r"\s+", " ", line).strip().replace('"', '')
+
+        if full_pipeline_pattern.search(clean_line):
+            # If current line is only continuation like "PIPELINE L.L.C" or "L.L.C"
+            # merge with previous line
+            if continuation_pattern.search(clean_line) and i > 0:
+                prev_line = re.sub(r"\s+", " ", lines[i - 1]).strip().replace('"', '')
+                pipeline_name = f"{prev_line} {clean_line}"
+            else:
+                pipeline_name = clean_line
+            break
+
+    return pipeline_name
+
+
+
+def extract_effectivedate_metadata(pdf):
+    effective_date = ""
+
+    page1_text = pdf.pages[0].extract_text()
+
+    match_effective = re.search(r"\bEffective(?:\s+Date)?\b\s*:?\s*([A-Za-z]+\s+\d{1,2},\s+\d{4})",page1_text,re.IGNORECASE)
+    if match_effective:
+        effective_date = match_effective.group(1)
+    # Convert to datetime
+    dt_obj = datetime.strptime(effective_date, "%B %d, %Y")
+
+        # Convert to DD-MM-YYYY
+    effective_date = dt_obj.strftime("%d-%m-%Y")
+
+    return effective_date
+
 
 
 def extract_tariff_rate_type(text):
@@ -244,11 +297,13 @@ def extract_page6(pdf):
     unpivoted_data = []
     tariff_rate_type = ""
 
-    pipeline_name, effective_date = extract_pipeline_metadata(pdf)
+    pipeline_name = extract_pipelinename_metadata(pdf)
+    effective_date = extract_effectivedate_metadata(pdf)
+
 
     # with pdfplumber.open(pdf_path) as pdf:
 
-    for i, page in enumerate(pdf.pages[0:1]):
+    for i, page in enumerate(pdf.pages[0:]):
 
         text = page.extract_text()
 
@@ -329,27 +384,27 @@ def extract_page6(pdf):
                         #     }
                         # )
 
-        unpivoted_data.append(
-            {
-                "Pipeline Name": pipeline_name,
-                # "PointfOrigin": origin,
-                # "PointOfDestination": destination,
-                # "LiquidTariffNumber": "", 
-                "Effective Date": effective_date,
-                # "End Date": expiry_date_value,
-                # "TariffStatus": "Effective",
-                # "RateTier": rate_tier,
-                # "RateType": tariff_rate_type,
-                # "TermYear": "",
-                # "MinBPD": bpd["MinBPD"],
-                # "MaxBPD": bpd["MaxBPD"],
-                # "AcreageDedicationMinAcres": "",
-                # "AcreageDedicationMaxAcres": "",
-                # "LiquidRateCentsPerBbl": rate,
-                # "SurchargeCentsPerBbl": "",
-                # "LiquidFuelType": "Crude",
-            }
-        )
+    unpivoted_data.append(
+        {
+            "Pipeline Name": pipeline_name,
+            # "PointfOrigin": origin,
+            # "PointOfDestination": destination,
+            # "LiquidTariffNumber": "", 
+            "Effective Date": effective_date,
+            # "End Date": expiry_date_value,
+            # "TariffStatus": "Effective",
+            # "RateTier": rate_tier,
+            # "RateType": tariff_rate_type,
+            # "TermYear": "",
+            # "MinBPD": bpd["MinBPD"],
+            # "MaxBPD": bpd["MaxBPD"],
+            # "AcreageDedicationMinAcres": "",
+            # "AcreageDedicationMaxAcres": "",
+            # "LiquidRateCentsPerBbl": rate,
+            # "SurchargeCentsPerBbl": "",
+            # "LiquidFuelType": "Crude",
+        }
+    )
 
 
 
@@ -383,7 +438,7 @@ def extract():
 
         # Export to CSV
         # output_csvfile = ''.join(input_file,'.csv')
-        output_file = os.path.join('Page6_extracted_files', 'input_file.csv')
+        output_file = os.path.join('Page6_extracted_files', 'input_file5.csv')
         final_data.to_csv(output_file, index=False, encoding="utf-8")
         # final_data.to_csv(output_file, index=False)
         print(f"\nData successfully exported to {input_file}")

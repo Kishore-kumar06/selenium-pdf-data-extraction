@@ -1,0 +1,3 @@
+Pipeline Name,PointfOrigin,PointOfDestination,LiquidTariffNumber,Effective Date,End Date,TariffStatus,RateTier,RateType,TermYear,MinBPD,MaxBPD,AcreageDedicationMinAcres,AcreageDedicationMaxAcres,LiquidRateCentsPerBbl,SurchargeCentsPerBbl,LiquidFuelType
+HAMMOND MAINLINE PIPELINE LLC,"Valero Alsip Terminal, Alsip, IL","Valero Hammond Terminal, Hammond, IN",,01-07-2025,,Effective,,,,,,,,[I] $0.4167 (Note 1),,Crude
+HAMMOND MAINLINE PIPELINE LLC,"Valero Hammond Terminal, Hammond, IN","Valero Alsip Terminal, Alsip, IL",,01-07-2025,,Effective,,,,,,,,[I] $0.4167 (Note 1),,Crude
