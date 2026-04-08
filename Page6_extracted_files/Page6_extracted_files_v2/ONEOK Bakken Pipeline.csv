@@ -1,4 +1,0 @@
-Pipeline Name,PointfOrigin,PointOfDestination,LiquidTariffNumber,Effective Date,End Date,TariffStatus,RateTier,RateType,TermYear,MinBPD,MaxBPD,AcreageDedicationMinAcres,AcreageDedicationMaxAcres,LiquidRateCentsPerBbl,SurchargeCentsPerBbl,LiquidFuelType
-"ONEOK Bakken Pipeline, L.L.C.",North Dakota Montana Wyoming,"Interconnect with Overland Pass Pipeline Weld County, Colorado",,01-07-2025,,Effective,,UNCOMMITTED RATES,,,,,,[I] $6.1764*,,Crude
-"ONEOK Bakken Pipeline, L.L.C.","Williams and McKenzie Counties, North Dakota","Riverview Terminal, Richland County, Montana",,01-07-2025,,Effective,,UNCOMMITTED RATES,,,,,,[I] $0.9203,,Crude
-"ONEOK Bakken Pipeline, L.L.C.",North Dakota Montana Wyoming,"Interconnect with Overland Pass Pipeline Weld County, Colorado",,01-07-2025,,Effective,,COMMITTED RATES,,,,,,[I] $6.1864,,Crude

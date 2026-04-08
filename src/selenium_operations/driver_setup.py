@@ -1,70 +1,101 @@
-from selenium import webdriver
 import os
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from utils.logfiles import setup_logger
 
-# This function sets up the browser options, including download preferences, and returns the configured options object.
-def driver_options(download_folder):
-    
-    # Set download preferences
-    prefs = {
-        "download.default_directory": os.path.abspath(download_folder),
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True
-    }
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option("prefs", prefs)
-    # options.add_argument("--headless")  # Run in headless mode
-    options.add_argument("--disable-gpu")  # Disable GPU acceleration
-    return options
+logger = setup_logger("driver_setup")
 
-# This function opens the specified browser with the given options and returns the driver instance.
-def open_browser(browser_name, options):
-    try:
-        if browser_name.lower() == "chrome":
-            driver = webdriver.Chrome(options=options)
-        elif browser_name.lower() == "firefox":
-            driver = webdriver.Firefox()
-        elif browser_name.lower() == "edge":
-            driver = webdriver.Edge()
-        else:
-            print(f"Unsupported browser: {browser_name}")
+class DriverSetup:
+    def __init__(self, browser_name="chrome", download_folder=None, headless=False):
+        self.browser_name = browser_name.lower()
+        self.download_folder = download_folder
+        self.headless = headless
+        self.driver = None
+
+    # Chrome Options
+    def _chrome_options(self):
+        options = ChromeOptions()
+
+        prefs = {
+            "download.default_directory": self.download_folder,
+            "download.prompt_for_download": False,
+            "download.directory_upgrade": True,
+            "safebrowsing.enabled": True
+        }
+
+        options.add_experimental_option("prefs", prefs)
+
+        if self.headless:
+            options.add_argument("--headless=new")
+
+        options.add_argument("--disable-gpu")
+        options.add_argument("--start-maximized")
+
+        return options
+
+
+    # Create browser instance
+    def setup_browser(self):
+        try:
+            if self.browser_name == "chrome":
+                logger.info("Setting up Chrome browser with options.")
+                options = self._chrome_options()
+                self.driver = webdriver.Chrome(options=options)
+
+            elif self.browser_name == "firefox":
+                logger.info("Setting up Firefox browser with options.")
+                options = self._firefox_options()
+                self.driver = webdriver.Firefox(options=options)
+
+            elif self.browser_name == "edge":
+                logger.info("Setting up Edge browser with options.")
+                options = self._edge_options()
+                self.driver = webdriver.Edge(options=options)
+            else:
+                raise ValueError(f"Unsupported browser: {self.browser_name}")
+
+            self.driver.maximize_window()
+            return self.driver
+
+        except Exception as e:
+            logger.error(f"Error opening the browser: {e}")
             return None
-        return driver
-    except Exception as e:
-        print(f"Error opening the browser: {e}")
-        return None
+
+
     
-# This function closes the browser instance if it exists, handling any exceptions that may occur during the process.
-def close_browser(driver):
-    try:
-        if driver is not None:
-            driver.close()
-            print("Browser closed successfully.")
+
+    # Open URL
+    def open_url(self, url):
+        if self.driver:
+            logger.info(f"Opening URL: {url}")
+            self.driver.get(url)
         else:
-            print("No browser instance to close.")
-    except Exception as e:
-        print(f"Error closing the browser: {e}")
+            logger.warning("Driver not initialized. Call setup_browser() first.")
 
-# This function quits the browser instance if it exists, handling any exceptions that may occur during the process. Quitting the browser will close all associated windows and end the session.
-def quit_browser(driver):
-    try:
-        if driver is not None:
-            driver.quit()
-            print("Browser quit successfully.")
+
+    # Quit browser (BEST practice)
+    def quit_browser(self):
+        if self.driver:
+            logger.info("Quiting browser...")
+            self.driver.quit()
+            self.driver = None
         else:
-            print("No browser instance to quit.")
-    except Exception as e:
-        print(f"Error quitting the browser: {e}")
+            logger.warning("No active browser session.")
 
-# This function navigates back in the browser history if the driver instance exists, handling any exceptions that may occur during the process.
-def back_browser(driver):
-    try:
-        if driver is not None:
-            driver.back()
-            print("Navigated back successfully.")
+    # Close window
+    def close_browser(self):
+        if self.driver:
+            logger.info("Closing Browser...")
+            self.driver.close()
+            self.driver = None
         else:
-            print("No browser instance to navigate back.")
-    except Exception as e:
-        print(f"Error navigating back: {e}")    
+            logger.warning("No active current window.")
 
 
+    # Navigate back
+    def back_browser(self):
+        if self.driver:
+            logger.info("Navigating back...")
+            self.driver.back()
+        else:
+            logger.warning("Driver not initialized.")
