@@ -7,34 +7,25 @@ from utils.logfiles import setup_logger
 logger = setup_logger("file_and_tracker")
 load_dotenv()
 
-
 class File_And_Tracker:
-    def __init__(self, main_path, pipelines, company_name, tariff_program, is_effective, file_status, time_taken, file_path):
-        self.main_path = main_path
+    def __init__(self, main_path, pipelines):
+        self.main_path = os.path.abspath(main_path)
         self.pipelines = pipelines
-        self.company_name = company_name
-        self.tariff_program = tariff_program
-        self.is_effective = is_effective
-        self.file_status = file_status
-        self.time_taken = time_taken
-        self.file_path = file_path
 
-    
     # This function creates an Excel file to track the status of downloaded files. It takes the main path, sub-path, pipeline name, company name, tariff program, effective status, file status, and time taken as input. If the tracker file for the current date already exists, it appends a new entry to it; otherwise, it creates a new tracker file with headers and the first entry.
-    def create_excel_tracker_files(main_path, pipelines, company_name, tariff_program, is_effective, file_status, time_taken):
+    def create_excel_tracker_files(self, company_name, tariff_program, is_effective, file_status, time_taken):
         try:
-            tracker_path = os.path.join(main_path, os.getenv("TRACEBACK_FILE"))
+            tracker_path = os.path.join(self.main_path, os.getenv("TRACEBACK_FILE"))
         
-            if not os.path.exists(tracker_path):
-                os.makedirs(tracker_path)
-                logger.info(f"Tracker directory created at: {tracker_path}\n")
-            else:
-                logger.info(f"Tracker directory already exists at: {tracker_path}\n")
+            # Ensure directory exists
+            os.makedirs(tracker_path, exist_ok=True)
+            logger.info(f"Tracker directory ready at: {tracker_path}")    
 
-            today = datetime.date.today()
+            # File name (date-based)
+            today = datetime.date.today().strftime("%Y-%m-%d")
             tracker_file = os.path.join(tracker_path, f"file_tracker_{today}.xlsx")
 
-            new_entry = [pipelines, company_name, tariff_program, is_effective, file_status, time_taken]
+            new_entry = [self.pipelines, company_name, tariff_program, is_effective, file_status, time_taken]
 
             try:
                 if os.path.exists(tracker_file):
@@ -48,13 +39,15 @@ class File_And_Tracker:
                     ws.append(new_entry)
                 
                 wb.save(tracker_file)
+                logger.info(f"Tracker updated successfully: {tracker_file}. \n")
+                print(f"Tracker updated: {tracker_file}")
 
             except Exception as e:
-                logger.error(f"Error recording tracker file: {e}\n")
+                logger.error(f"Error recording tracker file: {e}. \n")
                 print(f"Error recording tracker file: {e}")   
 
         except Exception as e:
-            logger.error(f"Error creating tracker file: {e}\n")
+            logger.error(f"Error creating tracker file: {e}. \n")
             print(f"Error creating tracker file: {e}")
 
     
@@ -64,35 +57,34 @@ class File_And_Tracker:
             output_path = os.path.join(self.main_path, os.getenv("DOWNLOAD_DIR"))
 
             if not os.path.exists(output_path):
-                logger.debug(f"Output directory does not exist. Creating directory at: {output_path}\n")
                 os.makedirs(output_path)
 
             pipeline_folder = os.path.join(output_path, self.pipelines)
             if not os.path.exists(pipeline_folder):
                 logger.debug(f"Pipeline folder does not exist for {self.pipelines}. Creating folder at: {pipeline_folder}\n")
                 os.makedirs(pipeline_folder)
-                logger.info(f"Folder created for {self.pipelines}")
+                logger.info(f"Folder created for {self.pipelines}. \n")
                 return pipeline_folder.replace("\\", "/")  # Return the path with forward slashes for consistency
             else:
-                logger.info(f"Folder already exists for {self.pipelines}") 
+                logger.info(f"Folder already exists for {self.pipelines}. \n") 
                 return None
 
         except Exception as e:
-            logger.error(f"Error creating pipeline folder: {e}")
+            logger.error(f"Error creating pipeline folder: {e}. \n")
 
    
-
-    def get_latest_file(self, pipeline_name=None):
+    def get_latest_file(self, file_path):
         try:
             # Build full path
-            base_path = os.path.abspath(self.file_path)
+            base_path = os.path.abspath(file_path)
 
-            if pipeline_name:
-                target_path = os.path.join(base_path, pipeline_name)
+            if file_path:
+                target_path = os.path.join(base_path, file_path)
             else:
                 target_path = base_path
 
             if not os.path.exists(target_path):
+                logger.error(f"Folder not found: {target_path}. \n")
                 raise FileNotFoundError(f"Folder not found: {target_path}")
 
             files = [
@@ -102,12 +94,21 @@ class File_And_Tracker:
             ]
 
             if not files:
+                logger.error(f"No files found in directory {file_path}. \n")
                 raise ValueError("No files found in directory.")
 
-            latest_file = max(files, key=os.path.getctime)
+            downloaded_file = max([os.path.join(file_path, f) for f in files],key=os.path.getctime)
 
-            return latest_file
+            file_extension = os.path.split(downloaded_file)[1]
+            new_file_name = f"{self.pipelines}{file_extension}"
+
+            latest_file_path = os.path.join(downloaded_file, new_file_name)
+
+            os.rename(downloaded_file, latest_file_path)
+
+            return latest_file_path
 
         except Exception as e:
+            logger.error(f"Error getting latest file: {e}. \n")
             print(f"Error getting latest file: {e}")
             return None

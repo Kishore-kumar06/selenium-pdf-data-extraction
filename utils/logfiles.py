@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def setup_logger(name, log_file=os.getenv("LOG_FILE")):
+def setup_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
 
@@ -13,7 +13,7 @@ def setup_logger(name, log_file=os.getenv("LOG_FILE")):
         datefmt="%Y-%m-%d %H:%M:%S"
     )
 
-    file_handler = logging.FileHandler(log_file)
+    file_handler = logging.FileHandler(os.getenv("LOG_FILE"))
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 

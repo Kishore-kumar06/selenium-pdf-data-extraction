@@ -37,62 +37,64 @@ class DriverSetup:
     def setup_browser(self):
         try:
             if self.browser_name == "chrome":
-                logger.info("Setting up Chrome browser with options.")
+                logger.info("Setting up Chrome browser with options. \n")
                 options = self._chrome_options()
                 self.driver = webdriver.Chrome(options=options)
 
             elif self.browser_name == "firefox":
-                logger.info("Setting up Firefox browser with options.")
+                logger.info("Setting up Firefox browser with options. \n")
                 options = self._firefox_options()
                 self.driver = webdriver.Firefox(options=options)
 
             elif self.browser_name == "edge":
-                logger.info("Setting up Edge browser with options.")
+                logger.info("Setting up Edge browser with options. \n")
                 options = self._edge_options()
                 self.driver = webdriver.Edge(options=options)
             
             else:
+                logger.warning(f"Unsupported browser: {self.browser_name}. \n")
                 raise ValueError(f"Unsupported browser: {self.browser_name}")
 
             self.driver.maximize_window()
             return self.driver
 
         except Exception as e:
-            logger.error(f"Error opening the browser: {e}")
+            logger.error(f"Error opening the browser: {e}. \n")
             return None
 
     # Open URL
     def open_url(self, url):
         if self.driver:
-            logger.info(f"Opening URL: {url}")
+            logger.info(f"Opening URL: {url}. \n")
             self.driver.get(url)
+            self.driver.implicitly_wait(3)
         else:
-            logger.warning("Driver not initialized. Call setup_browser() first.")
+            logger.warning("Driver not initialized. Call setup_browser() first. \n")
 
 
     # Quit browser (BEST practice)
     def quit_browser(self):
         if self.driver:
-            logger.info("Quiting browser...")
+            logger.info("Quiting browser... \n")
             self.driver.quit()
             self.driver = None
         else:
-            logger.warning("No active browser session.")
+            logger.warning("No active browser session. \n")
 
     # Close window
     def close_browser(self):
         if self.driver:
-            logger.info("Closing Browser...")
+            logger.info("Closing Browser... \n")
             self.driver.close()
             self.driver = None
         else:
-            logger.warning("No active current window.")
+            logger.warning("No active current window. \n")
 
 
     # Navigate back
-    def back_browser(self):
+    def navigate_back(self):
         if self.driver:
-            logger.info("Navigating back...")
+            logger.info("Navigating to previous page... \n")
             self.driver.back()
         else:
-            logger.warning("Driver not initialized.")
+            logger.warning("Driver not initialized. \n")

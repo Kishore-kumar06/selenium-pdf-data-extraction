@@ -9,7 +9,7 @@ class ReadPipelines:
         self.file_path = file_path
 
         if not self.file_path:
-            logger.error("Input file path not provided or found in environment variables.\n")
+            logger.error("Input file path not provided or found in environment variables. \n")
             raise ValueError("Input file path not provided or found in environment variables.")
         
 
