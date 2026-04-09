@@ -1,4 +1,3 @@
-import os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from utils.logfiles import setup_logger
@@ -51,6 +50,7 @@ class DriverSetup:
                 logger.info("Setting up Edge browser with options.")
                 options = self._edge_options()
                 self.driver = webdriver.Edge(options=options)
+            
             else:
                 raise ValueError(f"Unsupported browser: {self.browser_name}")
 
@@ -60,9 +60,6 @@ class DriverSetup:
         except Exception as e:
             logger.error(f"Error opening the browser: {e}")
             return None
-
-
-    
 
     # Open URL
     def open_url(self, url):

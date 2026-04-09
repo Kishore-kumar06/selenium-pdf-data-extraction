@@ -1,6 +1,4 @@
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
@@ -23,10 +21,6 @@ class BrowserActions:
 
             select = Select(dropdown)
             select.select_by_visible_text(program_name)
-
-            logger.info(f"Selected program: {program_name}")
-            print(f"Selected program: {program_name}")
-
         except TimeoutException:
             print("Dropdown not visible within timeout.")
             logger.error("Dropdown not visible within timeout.")
@@ -47,8 +41,6 @@ class BrowserActions:
             company_input.clear()
             company_input.send_keys(text) # Enter the company name in the input field
 
-            logger.info(f"Entered text: {text}")
-            print(f"Entered text: {text}")
             return text
         except TimeoutException:
             print("Input field not visible within timeout.")
@@ -64,19 +56,16 @@ class BrowserActions:
     # Button click function to click the dynamic buttons in website y specifying dynamic xpath as parameter. It waits for the button to be clickable and then clicks it.
     def click_button(self, xpath):
         try:
-            find_button = self.wait.until(
+            self.wait.until(
                 EC.element_to_be_clickable((By.XPATH, xpath))
-            )
-            find_button.click()
-
-            print("Clicked button")
-            logger.info(f"Clicked {find_button.get_attribute('value')} button")
+            ).click()
+            
         except TimeoutException:
             print("Button not clickable within timeout.")
             logger.error("Button not clickable within timeout.")
         except NoSuchElementException:
-            print(f"Button '{find_button.get_attribute('value')}' not found.")
-            logger.error(f"Button '{find_button.get_attribute('value')}' not found.")
+            print(f"Button not found.")
+            logger.error(f"Button not found.")
         except Exception as e:
             print(f"Unexpected error: {e}")
             logger.error(f"Unexpected error: {e}")
@@ -128,8 +117,6 @@ class BrowserActions:
             print(f"Unexpected error: {e}")
             logger.error(f"Unexpected error: {e}")
             return False
-
-
 
 
         # This function gets the company name from the results page using the provided XPath. It waits for the element to be present, retrieves its text, and returns it.
@@ -207,27 +194,3 @@ class BrowserActions:
         except Exception as e:
             print(f"Unexpected error: {e}")
             logger.error(f"Unexpected error: {e}")
-
-
-# # This function finds the last record in the table and checks if the effective file option is present in the last record. If it is present, it clicks on the effective link. If not, it returns False.
-# def find_last_record_in_table(driver, table_xpath):
-#     try:
-#         table = WebDriverWait(driver, 10).until(
-#             EC.presence_of_element_located((By.XPATH, table_xpath))
-#         )
-#         rows = table.find_elements(By.TAG_NAME, "tr")
-#         if len(rows) > 1:
-#             last_row = rows[-1]
-#             cells = last_row.find_elements(By.TAG_NAME, "td")
-#             # return [cell.text.strip() for cell in cells]
-#             effective_button = cells[3].find_element(By.TAG_NAME, "a")
-#             return effective_button
-#         else:
-#             print("No records found in the table.")
-#             return None
-#     except (Exception, NoSuchElementException, TimeoutException) as e:
-#         print(f"Error finding last record in table: {e}")
-#         return None
-
-    
-
