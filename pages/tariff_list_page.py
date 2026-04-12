@@ -14,6 +14,7 @@ class TariffListPage(BrowserActions):
 
     def process_tariff_list(self):
         try:
+    
             self.select_dropdown(program_name="Oil", xpath=os.getenv("TARIFF_PROGRAM_DROPDOWN_XPATH"))
             
             pipeline = self.enter_text(text=self.pipeline_name, xpath=os.getenv("COMPANY_NAME_INPUT_XPATH"))

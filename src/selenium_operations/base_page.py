@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from utils.logfiles import setup_logger
+from concurrent.futures import ThreadPoolExecutor
 
 logger = setup_logger("tariff_list_page")
 
@@ -20,6 +21,9 @@ class BrowserActions:
             )
 
             select = Select(dropdown)
+            if program_name != "Oil":
+                logger.warning(f"Program name '{program_name}' is not 'Oil'. Please check the input. \n")
+                
             select.select_by_visible_text(program_name)
         except TimeoutException:
             print(f"Dropdown {program_name} not visible within timeout.")
@@ -147,7 +151,6 @@ class BrowserActions:
             if len(rows) > 1:
                 last_row = rows[-1]
                 cells = last_row.find_elements(By.TAG_NAME, "td")
-                logger.info(f"Last row values: {[cell.text.strip() for cell in cells]}")
                 effective_button = cells[3].find_element(By.TAG_NAME, "a")
                 return effective_button
             else:

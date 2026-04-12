@@ -5,9 +5,9 @@ from utils.logfiles import setup_logger
 logger = setup_logger("driver_setup")
 
 class DriverSetup:
-    def __init__(self, browser_name="chrome", download_folder=None, headless=False):
+    def __init__(self, browser_name="chrome", headless=False):
         self.browser_name = browser_name.lower()
-        self.download_folder = download_folder
+        # self.download_folder = download_folder
         self.headless = headless
         self.driver = None
 
@@ -15,11 +15,15 @@ class DriverSetup:
     def _chrome_options(self):
         options = ChromeOptions()
 
+        # prefs = {
+        #     "download.default_directory": self.download_folder,
+        #     "download.prompt_for_download": False,
+        #     "download.directory_upgrade": True,
+        #     "safebrowsing.enabled": True
+        # }
+
         prefs = {
-            "download.default_directory": self.download_folder,
-            "download.prompt_for_download": False,
-            "download.directory_upgrade": True,
-            "safebrowsing.enabled": True
+            "profile.managed_default_content_settings.images": 2
         }
 
         options.add_experimental_option("prefs", prefs)
@@ -27,6 +31,7 @@ class DriverSetup:
         if self.headless:
             options.add_argument("--headless=new")
 
+        # options.add_argument("--headless=new")
         options.add_argument("--disable-gpu")
         options.add_argument("--start-maximized")
 
@@ -98,3 +103,13 @@ class DriverSetup:
             self.driver.back()
         else:
             logger.warning("Driver not initialized. \n")
+
+    
+    def set_download_path(self, path):
+        self.driver.execute_cdp_cmd(
+            "Page.setDownloadBehavior",
+            {
+                "behavior": "allow",
+                "downloadPath": path
+            }
+        )

@@ -3,6 +3,8 @@ import os
 import datetime
 from openpyxl import Workbook, load_workbook
 from utils.logfiles import setup_logger
+import time
+import shutil
 
 logger = setup_logger("file_and_tracker")
 load_dotenv()
@@ -19,7 +21,7 @@ class File_And_Tracker:
         
             # Ensure directory exists
             os.makedirs(tracker_path, exist_ok=True)
-            logger.info(f"Tracker directory ready at: {tracker_path}")    
+            logger.info(f"Tracker directory ready at: {tracker_path}. \n")    
 
             # File name (date-based)
             today = datetime.date.today().strftime("%Y-%m-%d")
@@ -61,7 +63,7 @@ class File_And_Tracker:
 
             pipeline_folder = os.path.join(output_path, self.pipelines)
             if not os.path.exists(pipeline_folder):
-                logger.debug(f"Pipeline folder does not exist for {self.pipelines}. Creating folder at: {pipeline_folder}\n")
+                logger.debug(f"Pipeline folder does not exist for {self.pipelines}. Creating folder at: {pipeline_folder}. \n")
                 os.makedirs(pipeline_folder)
                 logger.info(f"Folder created for {self.pipelines}. \n")
                 return pipeline_folder.replace("\\", "/")  # Return the path with forward slashes for consistency
@@ -75,13 +77,7 @@ class File_And_Tracker:
    
     def get_latest_file(self, file_path):
         try:
-            # Build full path
-            base_path = os.path.abspath(file_path)
-
-            if file_path:
-                target_path = os.path.join(base_path, file_path)
-            else:
-                target_path = base_path
+            target_path = os.path.abspath(file_path)
 
             if not os.path.exists(target_path):
                 logger.error(f"Folder not found: {target_path}. \n")
@@ -90,20 +86,27 @@ class File_And_Tracker:
             files = [
                 os.path.join(target_path, f)
                 for f in os.listdir(target_path)
-                if not f.endswith(".crdownload")  # ignore temp files
+                if os.path.isfile(os.path.join(target_path, f)) and not f.endswith(".crdownload")
             ]
 
             if not files:
+                time.sleep(3)
                 logger.error(f"No files found in directory {file_path}. \n")
                 raise ValueError("No files found in directory.")
 
-            downloaded_file = max([os.path.join(file_path, f) for f in files],key=os.path.getctime)
+            # Get latest file
+            downloaded_file = max(files, key=os.path.getctime)
+        
+            # Extract extension
+            _, file_extension = os.path.splitext(downloaded_file)
 
-            file_extension = os.path.split(downloaded_file)[1]
+            # New file name
             new_file_name = f"{self.pipelines}{file_extension}"
 
-            latest_file_path = os.path.join(downloaded_file, new_file_name)
+            # New full path
+            latest_file_path = os.path.join(target_path, new_file_name)
 
+            # Rename file
             os.rename(downloaded_file, latest_file_path)
 
             return latest_file_path

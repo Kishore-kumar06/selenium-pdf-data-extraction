@@ -15,8 +15,7 @@ class TariffBrowserPage(BrowserActions):
             self.click_button(xpath=os.getenv("ACTUAL_TARIFF_PROGRAM_XPATH"))
             
             is_effective = self.find_last_value(table_xpath=os.getenv("TABLE_ROWS_XPATH")) 
-            is_effective.click()
-            time.sleep(2)   
+            is_effective.click() 
             logger.info("Effective file found and clicked for the tariff program.  \n")
             
             self.switch_to_iframe(name=os.getenv("IFRAME_NAME"))
@@ -24,7 +23,7 @@ class TariffBrowserPage(BrowserActions):
 
             self.click_button(xpath=os.getenv("DOWNLOAD_BUTTON_XPATH"))
             logger.info("Download button clicked successfully. Waiting for file to download. \n")
-            time.sleep(5)  # Wait for the download to start
+            time.sleep(3)  # Wait for the download to start
 
             self.click_button(xpath=os.getenv("CLOSE_PAGE"))
            
