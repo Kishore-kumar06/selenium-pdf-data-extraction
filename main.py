@@ -4,7 +4,7 @@ from utils.tracker import File_And_Tracker
 from src.selenium_operations.driver_setup import DriverSetup
 from pages.tariff_list_page import TariffListPage
 from pages.tariff_browser_page import TariffBrowserPage
-# from src.pdf_operations.pdf_extraction.optimized_pdf_to_csv_extractorv1 import start_extraction
+from src.pdf_operations.pdf_extraction.script_to_extract_normal_table_data import extract
 import time
 import os
 from dotenv import load_dotenv
@@ -23,7 +23,6 @@ def get_pipeline_name():
     except Exception as e:
         logger.error(f"Error getting pipeline name: {e} \n")
         print(f"Error getting pipeline name: {e}")
-
 
 def selenium_process():
     try:
@@ -65,9 +64,8 @@ def download_files(driver, driver_setup, pipelines, current_dir):
             if tariff_text.startswith("Currently"):
                 print(f"No tariff files available for {company_name}.")
                 logger.info(f"No tariff files available for {company_name}. \n")
-                # driver_setup.quit_browser()
-                download_files(driver, driver_setup, pipelines, current_dir)
-            
+                driver_setup.quit_browser()
+                
             tariff_option.click()
             
             process_second_page.process_tariff_browser()
@@ -88,15 +86,17 @@ def download_files(driver, driver_setup, pipelines, current_dir):
         logger.error(f"An error occurred in the main function: {e} \n")
         print(f"An error occurred in the main function: {e}")
 
+
 def pdf_extraction():
-    pass
-    # start_extraction()
+    try:
+        extract()
+    except Exception as e:
+        print(f"An error occured while extracting PDF data")
+    
 
 
 def main():
-    selenium_process()
-
-    # pdf_extraction()
+    pdf_extraction()
 
 
 if __name__=="__main__":
