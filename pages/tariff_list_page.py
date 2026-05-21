@@ -11,6 +11,7 @@ class TariffListPage(BrowserActions):
     def __init__(self, driver, timeout=30, pipelinename=None):
         super().__init__(driver, timeout)
         self.pipeline_name = pipelinename
+        self.tariff_text = None
 
     def process_tariff_list(self):
         try:
@@ -25,12 +26,18 @@ class TariffListPage(BrowserActions):
             
             company_name = self.get_company_name_from_results(xpath=os.getenv("COMPANY_NAME_RESULT_XPATH")) 
 
-            tariff_option, tariff_text = self.get_oil_tariff_program_from_results(xpath=os.getenv("TARIFF_PROGRAM_RESULT_XPATH"), no_files_xpath=os.getenv("No_FILES_MESSAGE_XPATH"))
+            tariff_option, self.tariff_text = self.get_oil_tariff_program_from_results(xpath=os.getenv("TARIFF_PROGRAM_RESULT_XPATH"), no_files_xpath=os.getenv("No_FILES_MESSAGE_XPATH"))
             
-            return company_name, tariff_option, tariff_text
+            if self.tariff_text.startswith("Currently"):
+                
+                company_name, tariff_option, self.tariff_text = self.process_tariff_list()
+                
+                print(f"No tariff files available for {company_name}.")
+                logger.info(f"No tariff files available for {company_name}. \n")
+               
+
+            return company_name, tariff_option, self.tariff_text
         except Exception as e:
             print(f"An error occurred while processing the tariff list: {e}")
             logger.error(f"An error occurred while processing the tariff list: {e}. \n")
-    
-
     

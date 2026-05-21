@@ -5,6 +5,10 @@ load_dotenv()
 
 def load_pdf_files():
     try:
+        if not os.path.exists(os.getenv("INPUT_PDF_FILES_PATH")):
+           os.makedirs(os.getenv("INPUT_PDF_FILES_PATH"))
+           print(f"Created directory for transformed files at: {os.getenv('INPUT_PDF_FILES_PATH')}")
+           
         transformed_files_path = os.path.join(os.getenv("INPUT_PDF_FILES_PATH"))
 
         for root, _, files in os.walk(transformed_files_path):

@@ -24,23 +24,6 @@ def get_pipeline_name():
         logger.error(f"Error getting pipeline name: {e} \n")
         print(f"Error getting pipeline name: {e}")
 
-def selenium_process():
-    try:
-        driver_setup = DriverSetup(browser_name="chrome", headless=False)
-
-        current_dir = os.getcwd()
-        pipelines = get_pipeline_name()
-
-        driver = driver_setup.setup_browser()
-        driver_setup.open_url(os.getenv("URL"))
-
-        download_files(driver, driver_setup, pipelines, current_dir)
-
-        driver_setup.quit_browser()
-
-    except Exception as e:
-        print(e)
-
 def download_files(driver, driver_setup, pipelines, current_dir):
     try:      
         
@@ -61,11 +44,6 @@ def download_files(driver, driver_setup, pipelines, current_dir):
 
             company_name, tariff_option, tariff_text = process_first_page.process_tariff_list()
 
-            if tariff_text.startswith("Currently"):
-                print(f"No tariff files available for {company_name}.")
-                logger.info(f"No tariff files available for {company_name}. \n")
-                driver_setup.quit_browser()
-                
             tariff_option.click()
             
             process_second_page.process_tariff_browser()
@@ -87,16 +65,27 @@ def download_files(driver, driver_setup, pipelines, current_dir):
         print(f"An error occurred in the main function: {e}")
 
 
-def pdf_extraction():
+def selenium_process():
     try:
-        extract()
+        driver_setup = DriverSetup(browser_name="chrome", headless=False)
+
+        current_dir = os.getcwd()
+        pipelines = get_pipeline_name()
+
+        driver = driver_setup.setup_browser()
+        driver_setup.open_url(os.getenv("URL"))
+
+        download_files(driver, driver_setup, pipelines, current_dir)
+
+        driver_setup.quit_browser()
+
     except Exception as e:
-        print(f"An error occured while extracting PDF data")
-    
+        print(e)
+
 
 
 def main():
-    pdf_extraction()
+    selenium_process()
 
 
 if __name__=="__main__":

@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 logger = setup_logger("tariff_list_page")
 
 class BrowserActions:
-    def __init__(self, driver, timeout=30):
+    def __init__(self, driver, timeout=10):
         self.driver = driver
         self.wait = WebDriverWait(self.driver, timeout)
 
