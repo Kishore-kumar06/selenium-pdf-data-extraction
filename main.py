@@ -42,10 +42,37 @@ def download_files(driver, driver_setup, pipelines, current_dir):
             process_first_page = TariffListPage(driver, pipelinename=pipeline_name)
             process_second_page = TariffBrowserPage(driver)
 
-            company_name, tariff_option, tariff_text = process_first_page.process_tariff_list()
+            company_name, tariff_option, tariff_text = (
+                process_first_page.process_tariff_list()
+            )
+
+            print(tariff_text)
+
+            # Skip pipeline if no tariff exists
+            if tariff_option is None:
+
+                logger.info(
+                    f"Skipping {pipeline_name} - no files available"
+                )
+
+                print(
+                    f"Skipping {pipeline_name} - no files available"
+                )
+
+                tracker_file.create_excel_tracker_files(
+                    company_name=company_name,
+                    tariff_program=tariff_text,
+                    is_effective="No",
+                    file_status="No File Available",
+                    time_taken=0
+                )
+
+                driver_setup.navigate_back()
+                continue
+
 
             tariff_option.click()
-            
+
             process_second_page.process_tariff_browser()
 
             file = tracker_file.get_latest_file(file_path=download_dir)
@@ -55,7 +82,14 @@ def download_files(driver, driver_setup, pipelines, current_dir):
             end_time = time.time() 
             time_taken = end_time - start_time
             
-            tracker_file.create_excel_tracker_files(company_name=company_name, tariff_program=tariff_text, is_effective="Yes", file_status="Downloaded", time_taken=time_taken)
+            tracker_file.create_excel_tracker_files(
+                company_name=company_name, 
+                tariff_program=tariff_text, 
+                is_effective="Yes", 
+                file_status="Downloaded", 
+                time_taken=time_taken
+            )
+
             # driver_setup.quit_browser()
             driver_setup.navigate_back()
             driver_setup.navigate_back()
@@ -67,7 +101,7 @@ def download_files(driver, driver_setup, pipelines, current_dir):
 
 def selenium_process():
     try:
-        driver_setup = DriverSetup(browser_name="chrome", headless=False)
+        driver_setup = DriverSetup(browser_name="chrome", headless=True)
 
         current_dir = os.getcwd()
         pipelines = get_pipeline_name()
@@ -83,9 +117,18 @@ def selenium_process():
         print(e)
 
 
+def pdf_extraction_process():
+    try:
+        extract()
+    except Exception as e:
+        logger.error(f"An error occurred during PDF extraction: {e} \n")
+        print(f"An error occurred during PDF extraction: {e}")
+
 
 def main():
-    selenium_process()
+    # selenium_process()
+
+    pdf_extraction_process()
 
 
 if __name__=="__main__":

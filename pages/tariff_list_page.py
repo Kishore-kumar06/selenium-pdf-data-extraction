@@ -26,18 +26,21 @@ class TariffListPage(BrowserActions):
             
             company_name = self.get_company_name_from_results(xpath=os.getenv("COMPANY_NAME_RESULT_XPATH")) 
 
-            tariff_option, self.tariff_text = self.get_oil_tariff_program_from_results(xpath=os.getenv("TARIFF_PROGRAM_RESULT_XPATH"), no_files_xpath=os.getenv("No_FILES_MESSAGE_XPATH"))
+            tariff_option, tariff_text = self.get_oil_tariff_program_from_results(xpath=os.getenv("TARIFF_PROGRAM_RESULT_XPATH"), no_files_xpath=os.getenv("No_FILES_MESSAGE_XPATH"))
             
-            if self.tariff_text.startswith("Currently"):
-                
-                company_name, tariff_option, self.tariff_text = self.process_tariff_list()
-                
-                print(f"No tariff files available for {company_name}.")
-                logger.info(f"No tariff files available for {company_name}. \n")
-               
+            # No file available
+            if tariff_text and tariff_text.lower().startswith("Currently"):
+                logger.info(
+                    f"No tariff files available for {self.pipeline_name}"
+                )
 
-            return company_name, tariff_option, self.tariff_text
+                return company_name, None, tariff_text
+
+            return company_name, tariff_option, tariff_text
         except Exception as e:
             print(f"An error occurred while processing the tariff list: {e}")
             logger.error(f"An error occurred while processing the tariff list: {e}. \n")
+
+            return None, None, None
     
+

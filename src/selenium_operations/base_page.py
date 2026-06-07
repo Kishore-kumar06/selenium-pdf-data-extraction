@@ -77,29 +77,35 @@ class BrowserActions:
     # This function checks for presence of tariff title in the results page. If it is present, it returns the tariff title text. If not, it checks for the presence of a "no files" message and returns that text if found.
     def get_oil_tariff_program_from_results(self, xpath, no_files_xpath): 
         try:
-            tariff_program_text = ""
-
             tariff_program_element = self.wait.until(
                 EC.visibility_of_element_located((By.XPATH, xpath))
             )
             tariff_program_text = tariff_program_element.text.strip()
+            
             return tariff_program_element, tariff_program_text
+        
         except:
             try:
                 message_element = self.wait.until(
                     EC.visibility_of_element_located((By.XPATH,  no_files_xpath))
                 )
                 tariff_program_text = message_element.text.strip()
-                return tariff_program_text
+                
+                return None, tariff_program_text
+            
             except TimeoutException:
                 print("Option not visible within timeout.")
                 logger.error("Option not visible within timeout. \n")
+
+                return None, None
             except NoSuchElementException:
                 print(f"Option not found.")
                 logger.error(f"Option not found. \n")
+                return None, None
             except Exception as e:
                 print(f"Unexpected error: {e}")
                 logger.error(f"Unexpected error: {e}. \n")
+                return None, None
 
 
     def check_visibility_of_element(self, xpath):
@@ -120,7 +126,6 @@ class BrowserActions:
             print(f"Unexpected error: {e}")
             logger.error(f"Unexpected error: {e}. \n")
             return False
-
 
         # This function gets the company name from the results page using the provided XPath. It waits for the element to be present, retrieves its text, and returns it.
     def get_company_name_from_results(self, xpath):
