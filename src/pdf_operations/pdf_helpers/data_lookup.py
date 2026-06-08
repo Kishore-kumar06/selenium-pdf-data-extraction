@@ -50,8 +50,8 @@ class DataLookup:
 
     def normalize_header_cell(value):
         try:
-            value = re.sub(r"\s+", " ", str(value)).strip()
-            # value = DataLookup.clean(value).lower()
+            # value = re.sub(r"\s+", " ", str(value)).strip()
+            value = DataLookup.clean(value).lower()
             value = value.replace(":", "")
             value = re.sub(r"\(\d+\)", "", value)   # remove (1), (2)
             if value.startswith('[w]') or value.startswith('[n]'):

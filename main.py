@@ -4,7 +4,7 @@ from utils.tracker import File_And_Tracker
 from src.selenium_operations.driver_setup import DriverSetup
 from pages.tariff_list_page import TariffListPage
 from pages.tariff_browser_page import TariffBrowserPage
-from src.pdf_operations.pdf_extraction.script_to_extract_normal_table_data import extract
+from src.pdf_operations.pdf_extraction.final_export import export_data
 import time
 import os
 from dotenv import load_dotenv
@@ -119,7 +119,7 @@ def selenium_process():
 
 def pdf_extraction_process():
     try:
-        extract()
+        export_data()
     except Exception as e:
         logger.error(f"An error occurred during PDF extraction: {e} \n")
         print(f"An error occurred during PDF extraction: {e}")

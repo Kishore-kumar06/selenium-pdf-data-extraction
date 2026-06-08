@@ -12,20 +12,17 @@ class TableHeaderHelper:
 
         text = DataLookup.normalize_header_cell(text)
 
-        patterns = [
+        origin_headers = (
+            "origin point",
             "origin",
             "origins",
             "from",
             "from:",
             "origin(s)",
-            "receipt",
-            "origin point"
-        ]
-
-        return any(
-            pattern in text
-            for pattern in patterns
+            "receipt"
         )
+
+        return text.startswith(origin_headers)
 
     @staticmethod
     def is_destination_header(text):
@@ -35,20 +32,17 @@ class TableHeaderHelper:
 
         text = DataLookup.normalize_header_cell(text)
 
-        patterns = [
-            "destination",
-            "to",
+        destination_headers = (
             "destination point",
-            "destinations",
+            "destination",
             "destination(s)",
+            "destinations",
             "destination-dest",
             "delivery/destination",
-        ]
-
-        return any(
-            pattern in text
-            for pattern in patterns
+            "to"
         )
+
+        return text.startswith(destination_headers)
 
     @staticmethod
     def is_rate_header(text):
@@ -58,32 +52,29 @@ class TableHeaderHelper:
 
         text = DataLookup.normalize_header_cell(text)
 
-        patterns = [
+        rate_headers = (
            "uncommitted",
            "committed",
            "maximum",
-            "volume",
-            "rate",
-            "rates",
+           "volume",
+           "rate",
+           "rates",
            "rate:(2)",
            "base",
            "intersect",
            "joint",
            "non-anchor",
-           "contract",
            "incentive",
+           "contract",
            "for",
            "DESTINATION –",
            "long",
            "anchor",
            "pla"
 
-        ]
-
-        return any(
-            pattern in text
-            for pattern in patterns
         )
+
+        return text.startswith(rate_headers)
     
     @staticmethod
     def is_volume_tier_header(text):
@@ -93,17 +84,14 @@ class TableHeaderHelper:
 
         text = DataLookup.normalize_header_cell(text)
 
-        patterns = [
-           "volume tier",
+        volume_tier = (
            "total",
+           "volume tier",
            "st",
            "minimum volume",
            "fixed volume",
            "actual shipments",
            "terms"
-        ]
-
-        return any(
-            pattern in text
-            for pattern in patterns
         )
+
+        return text.startswith(volume_tier)

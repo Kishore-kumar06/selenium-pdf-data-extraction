@@ -1,9 +1,4 @@
-import pdfplumber
-import pandas as pd
 import re
-import os
-from datetime import datetime
-from utils.helpers import load_pdf_files
 from ..pdf_helpers.data_extraction_helper import PDFHelpers    
 from ..pdf_helpers.data_lookup import DataLookup
 from ..pdf_helpers.table_header_detecter import TableHeaderHelper
@@ -26,65 +21,65 @@ def is_rate(value):
 
 
 
-def is_origin_header(value):
-    value = DataLookup.normalize_header_cell(value)
-    return (
-        value.startswith("origin point")
-        or value.startswith("origin")
-        or value.startswith("origins")
-        or value.startswith("from")
-        or value.startswith("from:")
-        or value.startswith("origin(s)")
-        or value.startswith("receipt")
-    )
+# def is_origin_header(value):
+#     value = DataLookup.normalize_header_cell(value)
+#     return (
+#         value.startswith("origin point")
+#         or value.startswith("origin")
+#         or value.startswith("origins")
+#         or value.startswith("from")
+#         or value.startswith("from:")
+#         or value.startswith("origin(s)")
+#         or value.startswith("receipt")
+#     )
 
-def is_destination_header(value):
-    value = DataLookup.normalize_header_cell(value)
-    return(
-        value.startswith("destination point")
-        or value.startswith("destination")
-        or value.startswith("destination(s)")
-        or value.startswith("destinations")
-        or value.startswith("destination-dest")
-        or value.startswith("delivery/destination")
-        or value.startswith("to")
-    )
+# def is_destination_header(value):
+#     value = DataLookup.normalize_header_cell(value)
+#     return(
+#         value.startswith("destination point")
+#         or value.startswith("destination")
+#         or value.startswith("destination(s)")
+#         or value.startswith("destinations")
+#         or value.startswith("destination-dest")
+#         or value.startswith("delivery/destination")
+#         or value.startswith("to")
+#     )
 
-def is_rate_header(value):
-    value = DataLookup.normalize_header_cell(value)
-    return (
-        value.startswith("uncommitted")
-        or value.startswith("committed")
-        or value.startswith("maximum")
-        or value.startswith("volume")
-        or value.startswith("rate")
-        or value.startswith("rates")
-        or value.startswith("rate:(2)")
-        or value.startswith("base")
-        or value.startswith("interstate")
-        or value.startswith("joint")
-        or value.startswith("non-anchor")
-        or value.startswith("incentive")
-        or value.startswith("contract")
-        or value.startswith("for")
-        or value.startswith("DESTINATION –")
-        or value.startswith("long")
-        or value.startswith("anchor")
-        or value.startswith("pla")
-    )
+# def is_rate_header(value):
+#     value = DataLookup.normalize_header_cell(value)
+#     return (
+#         value.startswith("uncommitted")
+#         or value.startswith("committed")
+#         or value.startswith("maximum")
+#         or value.startswith("volume")
+#         or value.startswith("rate")
+#         or value.startswith("rates")
+#         or value.startswith("rate:(2)")
+#         or value.startswith("base")
+#         or value.startswith("interstate")
+#         or value.startswith("joint")
+#         or value.startswith("non-anchor")
+#         or value.startswith("incentive")
+#         or value.startswith("contract")
+#         or value.startswith("for")
+#         or value.startswith("DESTINATION –")
+#         or value.startswith("long")
+#         or value.startswith("anchor")
+#         or value.startswith("pla")
+#     )
 
-def is_volume_tier_header(value):
-    value = DataLookup.normalize_header_cell(value)
-    return (
-        value.startswith("total")
-        or value.startswith("volume tier")
-        or value.startswith("st")
-        or value.startswith("minimum volume")
-        or value.startswith("fixed volume")
-        or value.startswith("actual shipments")
-        or value.startswith("term")
+# def is_volume_tier_header(value):
+#     value = DataLookup.normalize_header_cell(value)
+#     return (
+#         value.startswith("total")
+#         or value.startswith("volume tier")
+#         or value.startswith("st")
+#         or value.startswith("minimum volume")
+#         or value.startswith("fixed volume")
+#         or value.startswith("actual shipments")
+#         or value.startswith("term")
         
-    )
+#     )
     # if value.startswith("volume tier") or value.startswith("total monthly") or value.startswith("st") or value.startswith("minimum volume") or value.startswith("fixed volume") or value.startswith("actual shipments"):
     #     return value
 
@@ -145,15 +140,15 @@ def find_expected_header(table):
 
             cell = row[col_idx]
 
-            if is_origin_header(cell):
+            if TableHeaderHelper.is_origin_header(cell):
                 origin_idx = col_idx
-                print(origin_idx)
-            elif is_destination_header(cell):
+                # print(origin_idx)
+            elif TableHeaderHelper.is_destination_header(cell):
                 destination_idx = col_idx
-            elif is_volume_tier_header(cell):
+            elif TableHeaderHelper.is_volume_tier_header(cell):
                 has_volume_tier = True
-            elif is_rate_header(cell):
-                print(cell)
+            elif TableHeaderHelper.is_rate_header(cell):
+                # print(cell)
                 rate_indices.append(col_idx)
 
         if origin_idx is not None and destination_idx is not None and rate_indices:
@@ -255,8 +250,8 @@ def extract_data(pdf):
     pipeline_name = pdf_helpers.extract_pipelinename_metadata()
     effective_date = pdf_helpers.extract_effectivedate_metadata()
 
-    print(f"Extracted Pipeline Name: {pipeline_name}")
-    print(f"Extracted Effective Date: {effective_date}")
+    # print(f"Extracted Pipeline Name: {pipeline_name}")
+    # print(f"Extracted Effective Date: {effective_date}")
 
     # Works whether PDF has 1 page or 100 pages
     for page_num, page in enumerate(pdf.pages, start=1):
@@ -296,29 +291,46 @@ def extract_data(pdf):
 
             cleaned_table = []
             for row in table:
-                # if '\n' in str(row[0]):
-                #     origin_parts = str(row[0]).split('\n')
+                # Handle Origin column safely
+                if len(row) > 0 and row[0] and '\n' in str(row[0]):
 
-                #     total_rows = len(origin_parts)
-                #     for i in range(0, total_rows):
-                #         if i == 0:
-                #             row[0] = origin_parts[0]
-                #         else:
-                #             new_row = row.copy()
-                #             new_row[0] = origin_parts[i]
-                #             cleaned_table.append([DataLookup.clean(cell) for cell in new_row])
-                
-                # if '\n' in str(row[1]):
-                #     destination_parts = str(row[1]).split('\n')
+                    origin_parts = str(row[0]).split('\n')
 
-                #     total_rows = len(destination_parts)
-                #     for i in range(0, total_rows):
-                #         if i == 0:
-                #             row[1] = destination_parts[0]
-                #         else:
-                #             new_row = row.copy()
-                #             new_row[1] = destination_parts[i]
-                #             cleaned_table.append([DataLookup.clean(cell) for cell in new_row])
+                    total_rows = len(origin_parts)
+
+                    for i in range(total_rows):
+
+                        if i == 0:
+                            row[0] = origin_parts[0]
+
+                        else:
+                            new_row = row.copy()
+                            new_row[0] = origin_parts[i]
+
+                            cleaned_table.append(
+                                [DataLookup.clean(cell) for cell in new_row]
+                            )
+
+
+                # Handle Destination column safely
+                if len(row) > 1 and row[1] and '\n' in str(row[1]):
+
+                    destination_parts = str(row[1]).split('\n')
+
+                    total_rows = len(destination_parts)
+
+                    for i in range(total_rows):
+
+                        if i == 0:
+                            row[1] = destination_parts[0]
+
+                        else:
+                            new_row = row.copy()
+                            new_row[1] = destination_parts[i]
+
+                            cleaned_table.append(
+                                [DataLookup.clean(cell) for cell in new_row]
+                            )
 
                 if row:
                     cleaned_table.append([DataLookup.clean(cell) for cell in row])
@@ -413,13 +425,7 @@ def extract_data(pdf):
                                         seen_single_rate_rows.add(dedupe_key)
                                         unpivoted_data.append(
                                             {
-                                                # "Pipeline Name": pipeline_name,
-                                                # "EffectiveDate": effective_date,
-                                                # "Page": page_num,
-                                                # "PointOfOrigin": origin,
-                                                # "PointOfDestination": destination,
-                                                # "LiquidRateCentsPerBbl": single_rate,
-
+                                                
                                                 "Pipeline Name": pipeline_name,
                                                 "PointOfOrigin": origin,
                                                 "PointOfDestination": destination,
@@ -448,13 +454,7 @@ def extract_data(pdf):
                                     seen_single_rate_rows.add(dedupe_key)
                                     unpivoted_data.append(
                                         {
-                                            # "Pipeline Name": pipeline_name,
-                                            # "EffectiveDate": effective_date,
-                                            # "Page": page_num,
-                                            # "PointOfOrigin": origin,
-                                            # "PointOfDestination": destination,
-                                            # "LiquidRateCentsPerBbl": current_rate,
-
+                                        
                                             "Pipeline Name": pipeline_name,
                                             "PointfOrigin": origin,
                                             "PointOfDestination": destination,
@@ -490,13 +490,7 @@ def extract_data(pdf):
                                 for single_rate in split_rates:
                                     unpivoted_data.append(
                                         {
-                                            # "Pipeline Name": pipeline_name,
-                                            # "EffectiveDate": effective_date,
-                                            # "Page": page_num,
-                                            # "PointOfOrigin": origin,
-                                            # "PointOfDestination": destination,
-                                            # "LiquidRateCentsPerBbl": single_rate,
-
+                
                                             "Pipeline Name": pipeline_name,
                                             "PointfOrigin": origin,
                                             "PointOfDestination": destination,
@@ -519,13 +513,7 @@ def extract_data(pdf):
                             elif rate_val:
                                 unpivoted_data.append(
                                     {
-                                        # "Pipeline Name": pipeline_name,
-                                        # "EffectiveDate": effective_date,
-                                        # "Page": page_num,
-                                        # "PointOfOrigin": origin,
-                                        # "PointOfDestination": destination,
-                                        # "LiquidRateCentsPerBbl": rate_val,
-
+                                       
                                         "Pipeline Name": pipeline_name,
                                         "PointfOrigin": origin,
                                         "PointOfDestination": destination,
@@ -550,34 +538,5 @@ def extract_data(pdf):
 
 
 
-            
-# --- Execution ---
-# file_name = r"D:\Project\python_freelance_project\reference_files\GasTariffSource\OilTariffFiles\Pony Express Pipeline.PDF"
 
-def extract():
-    start = datetime.now()
-    curr_path = os.getcwd()
-    tariff_data = []
-    # file_path = askopenfilename()
-    # print(file_path)
-    pdf_file = load_pdf_files()
-    for file in pdf_file:
-        input_file = os.path.basename(file).replace('.PDF','_v1.csv').replace('.pdf', '_v1.csv')
-
-        with pdfplumber.open(file) as pdf:
-            data = extract_data(pdf)
-            tariff_data.extend(data)
-            final_data = pd.DataFrame(tariff_data)
-
-            if final_data is not None and len(final_data) > 0:
-                output_file = os.path.join(os.getenv("EXTRACTED_DATA_OUTPUT_PATH"), input_file)
-                final_data.to_csv(output_file, index=False, encoding="utf-8")
-                tariff_data.clear()
-                # print(f"\nData successfully exported to {input_file}")
-            else:
-                print(f"\nFailed to extract {input_file} table data.")
-
-    end = datetime.now()
-    diff = end - start
-    print(f"Exported all files in {diff}.")
         
