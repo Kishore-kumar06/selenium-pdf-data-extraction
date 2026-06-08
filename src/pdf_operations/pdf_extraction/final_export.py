@@ -1,45 +1,187 @@
+from dotenv import load_dotenv
 import pdfplumber
 import pandas as pd
 import os
 from datetime import datetime
 from utils.helpers import load_pdf_files
 from .extract_3_column_headers_table_data import extract_data
+from .extract_borderless_table_data import extract_borderless_data
+
+load_dotenv()
+
+# Only these pipelines will be exported
+SUPPORTED_PIPELINES = {
+    "ANDEAVOR LOGISTICS RIO PIPELINE",
+    "ARROWHEAD INGLESIDE PIPELINE",
+    "BAKKEN PIPELINE",
+    "BATON ROUGE PIPELINE",
+    "CHEYENNE PIPELINE",
+    "DIAMOND PIPELINE",
+    "MIDWAY PIPELINE",
+    "PANOLA PIPELINE",
+    "TARGA GULF COAST NGL PIPELINE",
+    "TEXAS EXPRESS PIPELINE"
+}
+
+BORDERLESS_PIPELINES = {
+    "BATON ROUGE PIPELINE",
+    "CHEYENNE PIPELINE",
+    "DIAMOND PIPELINE",
+    "MIDWAY PIPELINE",
+    "PANOLA PIPELINE",
+    "TARGA GULF COAST NGL PIPELINE",
+    "TEXAS EXPRESS PIPELINE"
+}
 
 
-files = ["Andeavor Logistics Rio Pipeline","Arrowhead Ingleside Pipeline","Bakken Pipeline"]
+def normalize_file_name(file_path):
+    """
+    Normalize filename for comparison.
+    """
+
+    file_name = os.path.basename(file_path)
+
+    normalized_name = (
+        os.path.splitext(file_name)[0]
+        .replace("_", " ")
+        .replace("-", " ")
+        .strip()
+        .upper()
+    )
+
+    return normalized_name
+
+
+def should_process_pdf(file_path):
+    """
+    Check whether current PDF
+    belongs to supported pipelines.
+    """
+
+    normalized_name = normalize_file_name(
+        file_path
+    )
+
+    return normalized_name.startswith(
+        tuple(SUPPORTED_PIPELINES)
+    )
+
+
+def is_borderless_pipeline(file_path):
+    """
+    Check whether current pipeline
+    uses borderless extraction logic.
+    """
+
+    normalized_name = normalize_file_name(
+        file_path
+    )
+
+    return normalized_name.startswith(
+        tuple(BORDERLESS_PIPELINES)
+    )
+
 
 def export_data():
     try:
         start = datetime.now()
-        curr_path = os.getcwd()
-        tariff_data = []
         
-        pdf_file = load_pdf_files()
-        for file in pdf_file:
-            file_name_without_ext = os.path.splitext(os.path.basename(file))[0]
-            
-            if file_name_without_ext not in files:
-                print(f"Skipping file: {file} as it is not in the target list.")
+        tariff_data = []
+
+        processed_count = 0
+        skipped_count = 0
+        failed_count = 0
+        
+        pdf_files = load_pdf_files()
+
+        for file in pdf_files:
+            file_name = os.path.basename(file)
+
+            # ---------------------------------
+            # Skip Unsupported Pipelines
+            # ---------------------------------
+
+            if not should_process_pdf(
+                file
+            ):
+
+                skipped_count += 1
+
+                print(
+                    f"Skipping unsupported PDF: "
+                    f"{file_name}"
+                )
+
                 continue
 
-            with pdfplumber.open(file) as pdf:
-                data = extract_data(pdf)
-                tariff_data.extend(data)
-                final_data = pd.DataFrame(tariff_data)
+            try:
+                with pdfplumber.open(file) as pdf:
 
-                input_file = os.path.basename(file).replace('.PDF','_v1.csv').replace('.pdf', '_v1.csv')
+                     # -------------------------
+                    # Borderless Extraction
+                    # -------------------------
 
-                if final_data is not None and len(final_data) > 0:
-                    output_file = os.path.join(os.getenv("EXTRACTED_DATA_OUTPUT_PATH"), input_file)
+                    if is_borderless_pipeline(file):
+
+                        # print(type(pdf))
+                        # print(f"Processing borderless PDF: {file_name}")
+                        # print(file)
+
+                        # print("Using borderless extraction")
+
+                        data = (extract_borderless_data(pdf, source_name=file))
+
+                    # -------------------------
+                    # Normal Extraction
+                    # -------------------------
+
+                    else:
+
+                        print("Using normal extraction")
+
+                        data = extract_data(pdf)
+
+                    if not data:
+
+                        failed_count += 1
+
+                        print(f"No table data extracted: {file_name}")
+                        continue
+
+                    tariff_data.extend(data)
+                    final_data = pd.DataFrame(tariff_data)
+
+                    output_file_name = (os.path.splitext(file_name)[0]+ ".csv")
+
+                    output_file = os.path.join(os.getenv("EXTRACTED_DATA_OUTPUT_PATH"),output_file_name)
+
                     final_data.to_csv(output_file, index=False, encoding="utf-8")
-                    tariff_data.clear()
-                    # print(f"\nData successfully exported to {input_file}")
-                else:
-                    print(f"\nFailed to extract {input_file} table data.")
 
+                    tariff_data.clear()
+
+                    processed_count += 1
+
+                    print(f"Exported: {output_file_name}")
+            
+            except Exception as e:
+
+                failed_count += 1
+
+                print(
+                    f"Failed processing "
+                    f"{file_name}: {e}"
+                )
+
+                continue
         end = datetime.now()
+
         diff = end - start
-        print(f"Exported all files in {diff}.")
+        print("\nExecution Summary")
+        print("-" * 40)
+        print(f"Processed PDFs : {processed_count}")
+        print(f"Skipped PDFs   : {skipped_count}")
+        print(f"Failed PDFs    : {failed_count}")
+        print(f"Execution Time : {diff}")
 
     except Exception as e:
         print(f"Error in final export: {e}")    

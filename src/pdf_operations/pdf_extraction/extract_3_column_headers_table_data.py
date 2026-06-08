@@ -7,17 +7,17 @@ from ..pdf_helpers.table_header_detecter import TableHeaderHelper
 def normalize_row(row):
     return [DataLookup.normalize_exact_header_cell(col) for col in row]
 
-def is_rate(value):
-    """
-    Accept:
-    184.24
-    250
-    [I] 184.24
-    [U] 250.55
-    """
-    value = DataLookup.clean(value)
-    value = re.sub(r"\[[A-Z]\]", "", value).strip()
-    return bool(re.fullmatch(r"\d+(?:\.\d+)?", value))
+# def is_rate(value):
+#     """
+#     Accept:
+#     184.24
+#     250
+#     [I] 184.24
+#     [U] 250.55
+#     """
+#     value = DataLookup.clean(value)
+#     value = re.sub(r"\[[A-Z]\]", "", value).strip()
+#     return bool(re.fullmatch(r"\d+(?:\.\d+)?", value))
 
 
 
@@ -250,9 +250,6 @@ def extract_data(pdf):
     pipeline_name = pdf_helpers.extract_pipelinename_metadata()
     effective_date = pdf_helpers.extract_effectivedate_metadata()
 
-    # print(f"Extracted Pipeline Name: {pipeline_name}")
-    # print(f"Extracted Effective Date: {effective_date}")
-
     # Works whether PDF has 1 page or 100 pages
     for page_num, page in enumerate(pdf.pages, start=1):
         text = page.extract_text() or ""
@@ -292,45 +289,46 @@ def extract_data(pdf):
             cleaned_table = []
             for row in table:
                 # Handle Origin column safely
-                if len(row) > 0 and row[0] and '\n' in str(row[0]):
+                
+                # if len(row) > 0 and row[0] and '\n' in str(row[0]):
 
-                    origin_parts = str(row[0]).split('\n')
+                #     origin_parts = str(row[0]).split('\n')
 
-                    total_rows = len(origin_parts)
+                #     total_rows = len(origin_parts)
 
-                    for i in range(total_rows):
+                #     for i in range(total_rows):
 
-                        if i == 0:
-                            row[0] = origin_parts[0]
+                #         if i == 0:
+                #             row[0] = origin_parts[0]
 
-                        else:
-                            new_row = row.copy()
-                            new_row[0] = origin_parts[i]
+                #         else:
+                #             new_row = row.copy()
+                #             new_row[0] = origin_parts[i]
 
-                            cleaned_table.append(
-                                [DataLookup.clean(cell) for cell in new_row]
-                            )
+                #             cleaned_table.append(
+                #                 [DataLookup.clean(cell) for cell in new_row]
+                #             )
 
 
-                # Handle Destination column safely
-                if len(row) > 1 and row[1] and '\n' in str(row[1]):
+                # # Handle Destination column safely
+                # if len(row) > 1 and row[1] and '\n' in str(row[1]):
 
-                    destination_parts = str(row[1]).split('\n')
+                #     destination_parts = str(row[1]).split('\n')
 
-                    total_rows = len(destination_parts)
+                #     total_rows = len(destination_parts)
 
-                    for i in range(total_rows):
+                #     for i in range(total_rows):
 
-                        if i == 0:
-                            row[1] = destination_parts[0]
+                #         if i == 0:
+                #             row[1] = destination_parts[0]
 
-                        else:
-                            new_row = row.copy()
-                            new_row[1] = destination_parts[i]
+                #         else:
+                #             new_row = row.copy()
+                #             new_row[1] = destination_parts[i]
 
-                            cleaned_table.append(
-                                [DataLookup.clean(cell) for cell in new_row]
-                            )
+                #             cleaned_table.append(
+                #                 [DataLookup.clean(cell) for cell in new_row]
+                #             )
 
                 if row:
                     cleaned_table.append([DataLookup.clean(cell) for cell in row])
@@ -443,7 +441,6 @@ def extract_data(pdf):
                                                 "LiquidRateCentsPerBbl": single_rate,
                                                 "SurchargeCentsPerBbl": "",
                                                 "LiquidFuelType": "Crude",
-
                                                 
                                             }
                                         )
@@ -536,7 +533,3 @@ def extract_data(pdf):
 
     return unpivoted_data
 
-
-
-
-        

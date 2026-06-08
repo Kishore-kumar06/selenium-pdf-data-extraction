@@ -19,7 +19,9 @@ class TableHeaderHelper:
             "from",
             "from:",
             "origin(s)",
-            "receipt"
+            "receipt",
+            "receipt points/origin",
+            "receipt points origin"
         )
 
         return text.startswith(origin_headers)
@@ -39,6 +41,7 @@ class TableHeaderHelper:
             "destinations",
             "destination-dest",
             "delivery/destination",
+            "delivery destination",
             "to"
         )
 
@@ -91,7 +94,8 @@ class TableHeaderHelper:
            "minimum volume",
            "fixed volume",
            "actual shipments",
-           "terms"
+           "terms",
+           "term"
         )
 
         return text.startswith(volume_tier)

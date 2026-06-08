@@ -24,6 +24,7 @@ def get_pipeline_name():
         logger.error(f"Error getting pipeline name: {e} \n")
         print(f"Error getting pipeline name: {e}")
 
+
 def download_files(driver, driver_setup, pipelines, current_dir):
     try:      
         
