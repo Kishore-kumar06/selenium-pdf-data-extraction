@@ -290,7 +290,7 @@ def _parse_single_rate_section_from_words(page, header_idx, next_header_idx=None
 # ------------------------------------------------------------
 # Specialized parsers for difficult PDFs
 # ------------------------------------------------------------
-def extract_midway_style_from_text(page_text, pipeline_name="", effective_date="", expiry_date_value="", rate_tier="", rate_type="", bpd=None, page_num=None):
+def extract_midway_style_from_text(page_text, pipeline_name="", effective_date="", expiry_date_value="", rate_tier="", rate_type="", bpd_ranges=None, page_num=None):
     records = []
     if not page_text:
         return records
@@ -325,40 +325,35 @@ def extract_midway_style_from_text(page_text, pipeline_name="", effective_date="
     origin_text = DataLookup.clean(origin_destination_text.replace(dest_match.group(1), ""))
     origin_list = split_multiple_origins(origin_text)
 
-    for origin in origin_list:
-        for rate in rate_matches:
-            records.append(
-                {
-                    # "Pipeline Name": pipeline_name,
-                    # "EffectiveDate": effective_date,
-                    # "Page": page_num,
-                    # "PointOfOrigin": origin,
-                    # "PointOfDestination": destination,
-                    # "LiquidRateCentsPerBbl": DataLookup.clean(rate),
-
-                    "Pipeline Name": pipeline_name,
-                    "PointOfOrigin": origin,
-                    "PointOfDestination": destination,
-                    "LiquidTariffNumber": "",
-                    "Effective Date": effective_date,
-                    "End Date": expiry_date_value,
-                    "TariffStatus": "Effective",
-                    "RateTier": rate_tier,
-                    "RateType": rate_type,
-                    "TermYear": "",
-                    "MinBPD": bpd.get("MinBPD", ""),
-                    "MaxBPD": bpd.get("MaxBPD", ""),
-                    "AcreageDedicationMinAcres": "",
-                    "AcreageDedicationMaxAcres": "",
-                    "LiquidRateCentsPerBbl": DataLookup.clean(rate),
-                    "SurchargeCentsPerBbl": "",
-                    "LiquidFuelType": "Crude",
-                }
-            )
+    for bpd in bpd_ranges:
+        for origin in origin_list:
+            for rate in rate_matches:
+                records.append(
+                    {
+                        
+                        "Pipeline Name": pipeline_name,
+                        "PointOfOrigin": origin,
+                        "PointOfDestination": destination,
+                        "LiquidTariffNumber": "",
+                        "Effective Date": effective_date,
+                        "End Date": expiry_date_value,
+                        "TariffStatus": "Effective",
+                        "RateTier": rate_tier,
+                        "RateType": rate_type,
+                        "TermYear": "",
+                        "MinBPD": bpd.get("MinBPD", ""),
+                        "MaxBPD": bpd.get("MaxBPD", ""),
+                        "AcreageDedicationMinAcres": "",
+                        "AcreageDedicationMaxAcres": "",
+                        "LiquidRateCentsPerBbl": DataLookup.clean(rate),
+                        "SurchargeCentsPerBbl": "",
+                        "LiquidFuelType": "Crude",
+                    }
+                )
     return records
 
 
-def extract_cheyenne_from_words(page, pipeline_name="", effective_date="", expiry_date_value="", rate_type="", rate_tier="", bpd=None, page_num=None):
+def extract_cheyenne_from_words(page, pipeline_name="", effective_date="", expiry_date_value="", rate_type="", rate_tier="", bpd_ranges=None, page_num=None):
     records = []
     words = page.extract_words(use_text_flow=False, keep_blank_chars=False)
     lines = _cluster_words_to_lines(words)
@@ -391,39 +386,34 @@ def extract_cheyenne_from_words(page, pipeline_name="", effective_date="", expir
                 destination = DataLookup.clean(match.group(2))
 
     if origin and destination and rates:
-        for rate in rates:
-            records.append(
-                {
-                    # "Pipeline Name": pipeline_name,
-                    # "EffectiveDate": effective_date,
-                    # "Page": page_num,
-                    # "PointOfOrigin": origin,
-                    # "PointOfDestination": destination,
-                    # "LiquidRateCentsPerBbl": rate,
-
-                    "Pipeline Name": pipeline_name,
-                    "PointOfOrigin": origin,
-                    "PointOfDestination": destination,
-                    "LiquidTariffNumber": "",
-                    "Effective Date": effective_date,
-                    "End Date": expiry_date_value,
-                    "TariffStatus": "Effective",
-                    "RateTier": rate_tier,
-                    "RateType": rate_type,
-                    "TermYear": "",
-                    "MinBPD": bpd.get("MinBPD", ""),
-                    "MaxBPD": bpd.get("MaxBPD", ""),
-                    "AcreageDedicationMinAcres": "",
-                    "AcreageDedicationMaxAcres": "",
-                    "LiquidRateCentsPerBbl": rate,
-                    "SurchargeCentsPerBbl": "",
-                    "LiquidFuelType": "Crude",
-                }
-            )
+        for bpd in bpd_ranges:
+            for rate in rates:
+                records.append(
+                    {
+                       
+                        "Pipeline Name": pipeline_name,
+                        "PointOfOrigin": origin,
+                        "PointOfDestination": destination,
+                        "LiquidTariffNumber": "",
+                        "Effective Date": effective_date,
+                        "End Date": expiry_date_value,
+                        "TariffStatus": "Effective",
+                        "RateTier": rate_tier,
+                        "RateType": rate_type,
+                        "TermYear": "",
+                        "MinBPD": bpd.get("MinBPD", ""),
+                        "MaxBPD": bpd.get("MaxBPD", ""),
+                        "AcreageDedicationMinAcres": "",
+                        "AcreageDedicationMaxAcres": "",
+                        "LiquidRateCentsPerBbl": rate,
+                        "SurchargeCentsPerBbl": "",
+                        "LiquidFuelType": "Crude",
+                    }
+                )
     return records
 
 
-def extract_diamond_from_words(page, pipeline_name="", effective_date="", expiry_date_value="", rate_type="", rate_tier="", bpd=None, page_num=None):
+def extract_diamond_from_words(page, pipeline_name="", effective_date="", expiry_date_value="", rate_type="", rate_tier="", bpd_ranges=None, page_num=None):
     records = []
     words = page.extract_words(use_text_flow=False, keep_blank_chars=False)
     lines = _cluster_words_to_lines(words)
@@ -477,102 +467,14 @@ def extract_diamond_from_words(page, pipeline_name="", effective_date="", expiry
     origins = [o for o in origins if o not in {"FROM", "TO"}]
 
     if origins:
-        # Base rate for each origin in order found
-        for origin, rate in zip(origins, base_rates):
-            records.append(
-                {
-                    # "Pipeline Name": pipeline_name,
-                    # "EffectiveDate": effective_date,
-                    # "Page": page_num,
-                    # "PointOfOrigin": origin,
-                    # "PointOfDestination": destination,
-                    # "LiquidRateCentsPerBbl": rate,
-
-                    "Pipeline Name": pipeline_name,
-                    "PointOfOrigin": origin,
-                    "PointOfDestination": destination,
-                    "LiquidTariffNumber": "",
-                    "Effective Date": effective_date,
-                    "End Date": expiry_date_value,
-                    "TariffStatus": "Effective",
-                    "RateTier": rate_tier,
-                    "RateType": rate_type,
-                    "TermYear": "",
-                    "MinBPD": bpd.get("MinBPD", ""),
-                    "MaxBPD": bpd.get("MaxBPD", ""),
-                    "AcreageDedicationMinAcres": "",
-                    "AcreageDedicationMaxAcres": "",
-                    "LiquidRateCentsPerBbl": rate,
-                    "SurchargeCentsPerBbl": "",
-                    "LiquidFuelType": "Crude",
-
-                }
-            )
-
-        # Contract rates apply to first origin only on this tariff page
-        first_origin = origins[0]
-        for rate in contract_rates:
-            records.append(
-                {
-                    # "Pipeline Name": pipeline_name,
-                    # "EffectiveDate": effective_date,
-                    # "Page": page_num,
-                    # "PointOfOrigin": first_origin,
-                    # "PointOfDestination": destination,
-                    # "LiquidRateCentsPerBbl": rate,
-
-                    "Pipeline Name": pipeline_name,
-                    "PointOfOrigin": origin,
-                    "PointOfDestination": destination,
-                    "LiquidTariffNumber": "",
-                    "Effective Date": effective_date,
-                    "End Date": expiry_date_value,
-                    "TariffStatus": "Effective",
-                    "RateTier": rate_tier,
-                    "RateType": rate_type,
-                    "TermYear": "",
-                    "MinBPD": bpd.get("MinBPD", ""),
-                    "MaxBPD": bpd.get("MaxBPD", ""),
-                    "AcreageDedicationMinAcres": "",
-                    "AcreageDedicationMaxAcres": "",
-                    "LiquidRateCentsPerBbl": rate,
-                    "SurchargeCentsPerBbl": "",
-                    "LiquidFuelType": "Crude",
-
-                    
-                }
-            )
-    return records
-
-
-def extract_generic_word_sections(page, pipeline_name="", effective_date="", expiry_date_value="", rate_tier="", rate_type="", bpd=None, page_num=None, split_origins=False):
-    records = []
-    words = page.extract_words(use_text_flow=False, keep_blank_chars=False)
-    if not words:
-        return records
-    lines = _cluster_words_to_lines(words)
-    header_indices = _detect_header_lines(lines)
-    if not header_indices:
-        return records
-
-    for idx, header_idx in enumerate(header_indices):
-        next_idx = header_indices[idx + 1] if idx + 1 < len(header_indices) else None
-        section_rows = _parse_single_rate_section_from_words(page, header_idx, next_idx)
-        for row in section_rows:
-            origin_values = split_multiple_origins(row["origin"]) if split_origins else [row["origin"]]
-            for origin in origin_values:
+        for bpd in bpd_ranges:
+            # Base rate for each origin in order found
+            for origin, rate in zip(origins, base_rates):
                 records.append(
                     {
-                        # "Pipeline Name": pipeline_name,
-                        # "EffectiveDate": effective_date,
-                        # "Page": page_num,
-                        # "PointOfOrigin": origin,
-                        # "PointOfDestination": extract_destination_after_dash(row["destination"]),
-                        # "LiquidRateCentsPerBbl": row["rate"],
-
                         "Pipeline Name": pipeline_name,
                         "PointOfOrigin": origin,
-                        "PointOfDestination": extract_destination_after_dash(row["destination"]),
+                        "PointOfDestination": destination,
                         "LiquidTariffNumber": "",
                         "Effective Date": effective_date,
                         "End Date": expiry_date_value,
@@ -584,15 +486,86 @@ def extract_generic_word_sections(page, pipeline_name="", effective_date="", exp
                         "MaxBPD": bpd.get("MaxBPD", ""),
                         "AcreageDedicationMinAcres": "",
                         "AcreageDedicationMaxAcres": "",
-                        "LiquidRateCentsPerBbl": row["rate"],
+                        "LiquidRateCentsPerBbl": rate,
                         "SurchargeCentsPerBbl": "",
                         "LiquidFuelType": "Crude",
+
+                    }
+                )
+
+            # Contract rates apply to first origin only on this tariff page
+            first_origin = origins[0]
+            for rate in contract_rates:
+                records.append(
+                    {
+
+                        "Pipeline Name": pipeline_name,
+                        "PointOfOrigin": first_origin,
+                        "PointOfDestination": destination,
+                        "LiquidTariffNumber": "",
+                        "Effective Date": effective_date,
+                        "End Date": expiry_date_value,
+                        "TariffStatus": "Effective",
+                        "RateTier": rate_tier,
+                        "RateType": rate_type,
+                        "TermYear": "",
+                        "MinBPD": bpd.get("MinBPD", ""),
+                        "MaxBPD": bpd.get("MaxBPD", ""),
+                        "AcreageDedicationMinAcres": "",
+                        "AcreageDedicationMaxAcres": "",
+                        "LiquidRateCentsPerBbl": rate,
+                        "SurchargeCentsPerBbl": "",
+                        "LiquidFuelType": "Crude",
+
+                        
                     }
                 )
     return records
 
 
-def extract_midway_from_words(page, pipeline_name="", effective_date="", expiry_date_value="", rate_tier="", rate_type="", bpd=None, page_num=None):
+def extract_generic_word_sections(page, pipeline_name="", effective_date="", expiry_date_value="", rate_tier="", rate_type="", bpd_ranges=None, split_origins=False):
+    records = []
+    words = page.extract_words(use_text_flow=False, keep_blank_chars=False)
+    if not words:
+        return records
+    lines = _cluster_words_to_lines(words)
+    header_indices = _detect_header_lines(lines)
+    if not header_indices:
+        return records
+
+    for bpd in bpd_ranges:
+        for idx, header_idx in enumerate(header_indices):
+            next_idx = header_indices[idx + 1] if idx + 1 < len(header_indices) else None
+            section_rows = _parse_single_rate_section_from_words(page, header_idx, next_idx)
+            for row in section_rows:
+                origin_values = split_multiple_origins(row["origin"]) if split_origins else [row["origin"]]
+                for origin in origin_values:
+                    records.append(
+                        {
+                        
+                            "Pipeline Name": pipeline_name,
+                            "PointOfOrigin": origin,
+                            "PointOfDestination": extract_destination_after_dash(row["destination"]),
+                            "LiquidTariffNumber": "",
+                            "Effective Date": effective_date,
+                            "End Date": expiry_date_value,
+                            "TariffStatus": "Effective",
+                            "RateTier": rate_tier,
+                            "RateType": rate_type,
+                            "TermYear": "",
+                            "MinBPD": bpd.get("MinBPD", ""),
+                            "MaxBPD": bpd.get("MaxBPD", ""),
+                            "AcreageDedicationMinAcres": "",
+                            "AcreageDedicationMaxAcres": "",
+                            "LiquidRateCentsPerBbl": row["rate"],
+                            "SurchargeCentsPerBbl": "",
+                            "LiquidFuelType": "Crude",
+                        }
+                    )
+    return records
+
+
+def extract_midway_from_words(page, pipeline_name="", effective_date="", expiry_date_value="", rate_tier="", rate_type="", bpd_ranges=None, page_num=None):
     records = []
     page_text = page.extract_text() or ""
     lines = [DataLookup.clean(line) for line in page_text.splitlines() if DataLookup.clean(line)]
@@ -639,34 +612,29 @@ def extract_midway_from_words(page, pipeline_name="", effective_date="", expiry_
     destination = DataLookup.clean(" ".join(destination_parts))
     origins = split_multiple_origins(DataLookup.clean(" ".join(origin_parts)))
 
-    for origin in origins:
-        for rate in rates:
-            records.append({
-                # "Pipeline Name": pipeline_name,
-                # "EffectiveDate": effective_date,
-                # "Page": page_num,
-                # "PointOfOrigin": origin,
-                # "PointOfDestination": destination,
-                # "LiquidRateCentsPerBbl": DataLookup.clean(rate),
+    for bpd in bpd_ranges:
+        for origin in origins:
+            for rate in rates:
+                records.append({
 
-                "Pipeline Name": pipeline_name,
-                "PointOfOrigin": origin,
-                "PointOfDestination": destination,
-                "LiquidTariffNumber": "",
-                "Effective Date": effective_date,
-                "End Date": expiry_date_value,
-                "TariffStatus": "Effective",
-                "RateTier": rate_tier,
-                "RateType": rate_type,
-                "TermYear": "",
-                "MinBPD": bpd.get("MinBPD", ""),
-                "MaxBPD": bpd.get("MaxBPD", ""),
-                "AcreageDedicationMinAcres": "",
-                "AcreageDedicationMaxAcres": "",
-                "LiquidRateCentsPerBbl": DataLookup.clean(rate),
-                "SurchargeCentsPerBbl": "",
-                "LiquidFuelType": "Crude",
-            })
+                    "Pipeline Name": pipeline_name,
+                    "PointOfOrigin": origin,
+                    "PointOfDestination": destination,
+                    "LiquidTariffNumber": "",
+                    "Effective Date": effective_date,
+                    "End Date": expiry_date_value,
+                    "TariffStatus": "Effective",
+                    "RateTier": rate_tier,
+                    "RateType": rate_type,
+                    "TermYear": "",
+                    "MinBPD": bpd.get("MinBPD", ""),
+                    "MaxBPD": bpd.get("MaxBPD", ""),
+                    "AcreageDedicationMinAcres": "",
+                    "AcreageDedicationMaxAcres": "",
+                    "LiquidRateCentsPerBbl": DataLookup.clean(rate),
+                    "SurchargeCentsPerBbl": "",
+                    "LiquidFuelType": "Crude",
+                })
     return records
 
 
@@ -698,7 +666,7 @@ def is_continuation_table(table, header_info):
     return False
 
 
-def extract_from_tables(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd, page_num, last_header_info=None):
+def extract_from_tables(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges=None, page_num=None, last_header_info=None):
     unpivoted_data = []
     tables = page.extract_tables() or []
     if not tables:
@@ -790,20 +758,79 @@ def extract_from_tables(page, pipeline_name, effective_date, expiry_date_value, 
                         split_rates = split_rate_cell(current_rate)
 
                         if split_rates:
-                            for single_rate in split_rates:
-                                
-                                dedupe_key = (page_num, origin, destination, single_rate)
+                            for bpd in bpd_ranges:
+                                for single_rate in split_rates:
+                                    
+                                    dedupe_key = (page_num, origin, destination, single_rate)
+                                    if dedupe_key not in seen_single_rate_rows:
+                                        seen_single_rate_rows.add(dedupe_key)
+                                        unpivoted_data.append(
+                                            {
+                                               
+                                                "Pipeline Name": pipeline_name,
+                                                "PointOfOrigin": origin,
+                                                "PointOfDestination": destination,
+                                                "LiquidTariffNumber": "",
+                                                "Effective Date": effective_date,
+                                                "End Date": expiry_date_value,
+                                                "TariffStatus": "Effective",
+                                                "RateTier": rate_tier,
+                                                "RateType": rate_type,
+                                                "TermYear": "",
+                                                "MinBPD": bpd.get("MinBPD", ""),
+                                                "MaxBPD": bpd.get("MaxBPD", ""),
+                                                "AcreageDedicationMinAcres": "",
+                                                "AcreageDedicationMaxAcres": "",
+                                                "LiquidRateCentsPerBbl": single_rate,
+                                                "SurchargeCentsPerBbl": "",
+                                                "LiquidFuelType": "Crude",
+
+                                            }
+                                        )
+                        elif current_rate:
+                            for bpd in bpd_ranges:
+                                dedupe_key = (page_num, origin, destination, current_rate)
                                 if dedupe_key not in seen_single_rate_rows:
                                     seen_single_rate_rows.add(dedupe_key)
                                     unpivoted_data.append(
                                         {
-                                            # "Pipeline Name": pipeline_name,
-                                            # "EffectiveDate": effective_date,
-                                            # "Page": page_num,
-                                            # "PointOfOrigin": origin,
-                                            # "PointOfDestination": destination,
-                                            # "LiquidRateCentsPerBbl": single_rate,
+                                           
+                                            "Pipeline Name": pipeline_name,
+                                            "PointOfOrigin": origin,
+                                            "PointOfDestination": destination,
+                                            "LiquidTariffNumber": "",
+                                            "Effective Date": effective_date,
+                                            "End Date": expiry_date_value,
+                                            "TariffStatus": "Effective",
+                                            "RateTier": rate_tier,
+                                            "RateType": rate_type,
+                                            "TermYear": "",
+                                            "MinBPD": bpd.get("MinBPD", ""),
+                                            "MaxBPD": bpd.get("MaxBPD", ""),
+                                            "AcreageDedicationMinAcres": "",
+                                            "AcreageDedicationMaxAcres": "",
+                                            "LiquidRateCentsPerBbl": current_rate,
+                                            "SurchargeCentsPerBbl": "",
+                                            "LiquidFuelType": "Crude",
+                                        }
+                                    )
 
+                # -------------------------------------------------
+                # CASE 2: multiple rate columns -> keep duplicates
+                # -------------------------------------------------
+                else:
+                    for rate_val in raw_rates:
+                        if not rate_val:
+                            continue
+
+                        split_rates = split_rate_cell(rate_val)
+
+                        if split_rates:
+                            for bpd in bpd_ranges:
+                                for single_rate in split_rates:
+                                    unpivoted_data.append(
+                                        {
+                                           
                                             "Pipeline Name": pipeline_name,
                                             "PointOfOrigin": origin,
                                             "PointOfDestination": destination,
@@ -821,111 +848,32 @@ def extract_from_tables(page, pipeline_name, effective_date, expiry_date_value, 
                                             "LiquidRateCentsPerBbl": single_rate,
                                             "SurchargeCentsPerBbl": "",
                                             "LiquidFuelType": "Crude",
-
                                         }
                                     )
-                        elif current_rate:
-                            dedupe_key = (page_num, origin, destination, current_rate)
-                            if dedupe_key not in seen_single_rate_rows:
-                                seen_single_rate_rows.add(dedupe_key)
-                                unpivoted_data.append(
-                                    {
-                                        # "Pipeline Name": pipeline_name,
-                                        # "EffectiveDate": effective_date,
-                                        # "Page": page_num,
-                                        # "PointOfOrigin": origin,
-                                        # "PointOfDestination": destination,
-                                        # "LiquidRateCentsPerBbl": current_rate,
-
-                                        "Pipeline Name": pipeline_name,
-                                        "PointOfOrigin": origin,
-                                        "PointOfDestination": destination,
-                                        "LiquidTariffNumber": "",
-                                        "Effective Date": effective_date,
-                                        "End Date": expiry_date_value,
-                                        "TariffStatus": "Effective",
-                                        "RateTier": rate_tier,
-                                        "RateType": rate_type,
-                                        "TermYear": "",
-                                        "MinBPD": bpd.get("MinBPD", ""),
-                                        "MaxBPD": bpd.get("MaxBPD", ""),
-                                        "AcreageDedicationMinAcres": "",
-                                        "AcreageDedicationMaxAcres": "",
-                                        "LiquidRateCentsPerBbl": current_rate,
-                                        "SurchargeCentsPerBbl": "",
-                                        "LiquidFuelType": "Crude",
-                                    }
-                                )
-
-                # -------------------------------------------------
-                # CASE 2: multiple rate columns -> keep duplicates
-                # -------------------------------------------------
-                else:
-                    for rate_val in raw_rates:
-                        if not rate_val:
-                            continue
-
-                        split_rates = split_rate_cell(rate_val)
-
-                        if split_rates:
-                            for single_rate in split_rates:
-                                unpivoted_data.append(
-                                    {
-                                        # "Pipeline Name": pipeline_name,
-                                        # "EffectiveDate": effective_date,
-                                        # "Page": page_num,
-                                        # "PointOfOrigin": origin,
-                                        # "PointOfDestination": destination,
-                                        # "LiquidRateCentsPerBbl": single_rate,
-
-                                        "Pipeline Name": pipeline_name,
-                                        "PointOfOrigin": origin,
-                                        "PointOfDestination": destination,
-                                        "LiquidTariffNumber": "",
-                                        "Effective Date": effective_date,
-                                        "End Date": expiry_date_value,
-                                        "TariffStatus": "Effective",
-                                        "RateTier": rate_tier,
-                                        "RateType": rate_type,
-                                        "TermYear": "",
-                                        "MinBPD": bpd.get("MinBPD", ""),
-                                        "MaxBPD": bpd.get("MaxBPD", ""),
-                                        "AcreageDedicationMinAcres": "",
-                                        "AcreageDedicationMaxAcres": "",
-                                        "LiquidRateCentsPerBbl": single_rate,
-                                        "SurchargeCentsPerBbl": "",
-                                        "LiquidFuelType": "Crude",
-                                    }
-                                )
                         elif rate_val:
-                            unpivoted_data.append(
-                                {
-                                    # "Pipeline Name": pipeline_name,
-                                    # "EffectiveDate": effective_date,
-                                    # "Page": page_num,
-                                    # "PointOfOrigin": origin,
-                                    # "PointOfDestination": destination,
-                                    # "LiquidRateCentsPerBbl": rate_val,
-
-                                    "Pipeline Name": pipeline_name,
-                                    "PointOfOrigin": origin,
-                                    "PointOfDestination": destination,
-                                    "LiquidTariffNumber": "",
-                                    "Effective Date": effective_date,
-                                    "End Date": expiry_date_value,
-                                    "TariffStatus": "Effective",
-                                    "RateTier": rate_tier,
-                                    "RateType": rate_type,
-                                    "TermYear": "",
-                                    "MinBPD": bpd.get("MinBPD", ""),
-                                    "MaxBPD": bpd.get("MaxBPD", ""),
-                                    "AcreageDedicationMinAcres": "",
-                                    "AcreageDedicationMaxAcres": "",
-                                    "LiquidRateCentsPerBbl": rate_val,
-                                    "SurchargeCentsPerBbl": "",
-                                    "LiquidFuelType": "Crude",
-                                }
-                            )
+                            for bpd in bpd_ranges:
+                                unpivoted_data.append(
+                                    {
+                                       
+                                        "Pipeline Name": pipeline_name,
+                                        "PointOfOrigin": origin,
+                                        "PointOfDestination": destination,
+                                        "LiquidTariffNumber": "",
+                                        "Effective Date": effective_date,
+                                        "End Date": expiry_date_value,
+                                        "TariffStatus": "Effective",
+                                        "RateTier": rate_tier,
+                                        "RateType": rate_type,
+                                        "TermYear": "",
+                                        "MinBPD": bpd.get("MinBPD", ""),
+                                        "MaxBPD": bpd.get("MaxBPD", ""),
+                                        "AcreageDedicationMinAcres": "",
+                                        "AcreageDedicationMaxAcres": "",
+                                        "LiquidRateCentsPerBbl": rate_val,
+                                        "SurchargeCentsPerBbl": "",
+                                        "LiquidFuelType": "Crude",
+                                    }
+                                )
 
     return unpivoted_data, last_header_info
 
@@ -944,7 +892,6 @@ def extract_borderless_data(pdf, source_name=""):
 
     for page_num, page in enumerate(pdf.pages, start=1):
         text = page.extract_text() or ""
-
 
         try:
             tariff_rate_type = ""
@@ -972,16 +919,7 @@ def extract_borderless_data(pdf, source_name=""):
         page_records, last_header_info = extract_from_tables(
             page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, page_num, last_header_info
         )
-
-        print(
-            f"\nPage {page_num}"
-        )
-
-        print(
-            f"extract_from_tables count: "
-            f"{len(page_records)}"
-        )
-
+    
         if not page_records:
             if "midway pipeline" in source_lower or ("Viscosity Fee" in text and "CONTRACT RATE" in text and "BASE RATE" in text):
                 page_records = extract_midway_from_words(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, page_num) or extract_midway_style_from_text(text, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, page_num)
@@ -990,33 +928,21 @@ def extract_borderless_data(pdf, source_name=""):
             elif "diamond pipeline" in source_lower:
                 page_records = extract_diamond_from_words(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, page_num)
             elif "baton rouge pipeline" in source_lower:
-                print(
-                    "Using Baton Rouge extraction"
-                )
-
+               
                 page_records = (
-                    extract_generic_word_sections(
-                        page,
-                        pipeline_name,
-                        effective_date,
-                        page_num,
-                        split_origins=True
+                    extract_generic_word_sections(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, split_origins=True
                     )
                 )
 
-                print(
-                    f"Baton Rouge rows: "
-                    f"{len(page_records)}"
-                )
             elif "panola pipeline" in source_lower:
-                page_records = extract_generic_word_sections(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, page_num, split_origins=True)
+                page_records = extract_generic_word_sections(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, split_origins=True)
             elif "texas express pipeline" in source_lower:
-                page_records = extract_generic_word_sections(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, page_num, split_origins=False)
+                page_records = extract_generic_word_sections(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, split_origins=False)
             elif "targa gulf coast ngl pipeline" in source_lower:
-                page_records = extract_generic_word_sections(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, page_num, split_origins=False)
+                page_records = extract_generic_word_sections(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, split_origins=False)
             else:
                 # generic borderless fallback (also useful for Baton Rouge-like layouts)
-                page_records = extract_generic_word_sections(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, page_num, split_origins=True)
+                page_records = extract_generic_word_sections(page, pipeline_name, effective_date, expiry_date_value, rate_tier, rate_type, bpd_ranges, split_origins=True)
 
         if page_records:
             unpivoted_data.extend(
@@ -1026,33 +952,3 @@ def extract_borderless_data(pdf, source_name=""):
     return unpivoted_data
 
 
-# # ------------------------------------------------------------
-# # Execution helper
-# # ------------------------------------------------------------
-# def extract():
-#     start = datetime.now()
-#     curr_path = os.getcwd()
-#     tariff_data = []
-
-#     for file in get_transformed_files(curr_path):
-#         input_file = os.path.basename(file).replace('.PDF', '_v5.csv').replace('.pdf', '_v5.csv')
-
-#         with pdfplumber.open(file) as pdf:
-#             data = extract_data(pdf, source_name=file)
-#             tariff_data.extend(data)
-#             final_data = pd.DataFrame(tariff_data)
-
-#             if final_data is not None and len(final_data) > 0:
-#                 output_file = os.path.join('Page6_extracted_files', input_file)
-#                 final_data.to_csv(output_file, index=False, encoding='utf-8')
-#                 tariff_data.clear()
-#                 # print(f"\nData successfully exported to {input_file}")
-#             else:
-#                 print(f"\nFailed to extract {input_file} table data.")
-
-#     end = datetime.now()
-#     print(f"Completed in: {end - start}")
-
-
-# if __name__ == "__main__":
-#     extract()
