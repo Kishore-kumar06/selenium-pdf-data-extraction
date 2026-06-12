@@ -8,10 +8,24 @@ from src.pdf_operations.pdf_extraction.final_export import export_data
 import time
 import os
 from dotenv import load_dotenv
+import requests
 
 
 load_dotenv()
 logger = setup_logger("main")
+
+
+def check_connection():
+    try:
+        response = requests.get("https://www.google.com", timeout=5)
+        if response.status_code == 200:
+            return True
+        else:
+            return False
+    except Exception as r:
+        print(f"An error occured while connecting to internet. {r}")
+        return False
+    
 
 # Function to get pipelines
 def get_pipeline_name():
@@ -27,7 +41,7 @@ def get_pipeline_name():
 
 def download_files(driver, driver_setup, pipelines, current_dir):
     try:      
-        
+
         for pipeline_name in pipelines:
             logger.info(f"Retrived pipeline {pipeline_name}. \n")
         
@@ -91,32 +105,50 @@ def download_files(driver, driver_setup, pipelines, current_dir):
                 time_taken=time_taken
             )
 
-            # driver_setup.quit_browser()
             driver_setup.navigate_back()
             driver_setup.navigate_back()
 
     except Exception as e:
-        logger.error(f"An error occurred in the main function: {e} \n")
-        print(f"An error occurred in the main function: {e}")
+        logger.error(f"An error occurred while downloading pipeline files: {e} \n")
+        print(f"An error occurred while downloading pipeline files: {e} \n")
 
 
 def selenium_process():
     try:
-        driver_setup = DriverSetup(browser_name="chrome", headless=True)
+        retries = 3
+        wait_time = 2
 
-        current_dir = os.getcwd()
-        pipelines = get_pipeline_name()
+        for attempt in range(retries + 1):
 
-        driver = driver_setup.setup_browser()
-        driver_setup.open_url(os.getenv("URL"))
 
-        download_files(driver, driver_setup, pipelines, current_dir)
+            if check_connection() == False:
+                logger.error("Internet Disconnected")
+                raise Exception("Internet Disconnected")
+            
+            driver_setup = DriverSetup(browser_name="chrome", headless=True)
 
-        driver_setup.quit_browser()
+            current_dir = os.getcwd()
+            pipelines = get_pipeline_name()
+
+            driver = driver_setup.setup_browser()
+            driver_setup.open_url(os.getenv("URL"))
+
+            download_files(driver, driver_setup, pipelines, current_dir)
+
 
     except Exception as e:
-        print(e)
+        logger.error(f"An error occurred at main process: {e} \n")
+        print(f"An error occurred at main process: {e} \n")
+        logger.error(f"Retrying in {wait_time} seconds... \n")
 
+        if attempt > retries:
+            return
+        
+        time.sleep(wait_time)
+        wait_time *= 2  
+    finally:
+        if driver:
+            driver_setup.quit_browser()
 
 def pdf_extraction_process():
     try:
