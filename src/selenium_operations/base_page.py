@@ -1,39 +1,52 @@
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException, NoSuchFrameException
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from utils.logfiles import setup_logger
-from concurrent.futures import ThreadPoolExecutor
 
-logger = setup_logger("tariff_list_page")
+logger = setup_logger("base_page")
 
+# setting browser actions and operations
 class BrowserActions:
     def __init__(self, driver, timeout=10):
         self.driver = driver
         self.wait = WebDriverWait(self.driver, timeout)
 
     # Select dropdown value by visible text
-    def select_dropdown(self, program_name, xpath):
+    def select_dropdown(self, tariff_program, xpath):
         try:
+
             dropdown = self.wait.until(
                 EC.visibility_of_element_located((By.XPATH, xpath))
             )
 
             select = Select(dropdown)
-            if program_name != "Oil":
-                logger.warning(f"Program name '{program_name}' is not 'Oil'. Please check the input. \n")
+            if tariff_program != "Oil":
+                error_message = (f"Invalid program name '{tariff_program}'. Only 'Oil' is supported.")
+
+                logger.error(error_message)
+                raise ValueError(error_message)
                 
-            select.select_by_visible_text(program_name)
+            select.select_by_visible_text(tariff_program)
+
+            logger.info(f"Successfully selected {tariff_program} from the dropdown")
+
         except TimeoutException:
-            print(f"Dropdown {program_name} not visible within timeout.")
-            logger.error(f"Dropdown {program_name} not visible within timeout. \n")
+            logger.error(f"Dropdown element for {tariff_program} is not visible within the time.")
+            raise
+
         except NoSuchElementException:
-            print(f"Option {program_name} not found in dropdown.")
-            logger.error(f"Option {program_name} not found in dropdown. \n")
+            logger.error(f"Dropdown element for {tariff_program} is not found in page.")
+            raise
+        
+        except ValueError:
+            raise
+
         except Exception as e:
-            print(f"Unexpected error: {e}")
-            logger.error(f"Unexpected error: {e}. \n")
+            logger.exception(f"Unexpected error while locating dropdown: {e}.")
+            raise
+
 
     # This function locates the company name input field using the provided XPath, clears any existing text, and enters the specified company name.
     def enter_text(self, text, xpath):
@@ -44,16 +57,22 @@ class BrowserActions:
 
             company_input.clear()
             company_input.send_keys(text) # Enter the company name in the input field
+
+            logger.info(f"Successfully entered pipeline name {text}.")
+
             return text
+
         except TimeoutException:
-            print(f"Input field {text} not visible within timeout.")
-            logger.error(f"Input field {text} not visible within timeout. \n")
+            logger.error(f"Text Field element for {text} is not visible within the time.")
+            raise
+
         except NoSuchElementException:
-            print(f"Text '{text}' not found in input field.")
-            logger.error(f"Text '{text}' not found in input field. \n")
+            logger.error(f"Text Field element for {text} is not found in page.")
+            raise
+
         except Exception as e:
-            print(f"Unexpected error: {e}")
-            logger.error(f"Unexpected error: {e}. \n")
+            logger.exception(f"Unexpected error while locating textbox: {e}.")
+            raise
 
 
     # Button click function to click the dynamic buttons in website y specifying dynamic xpath as parameter. It waits for the button to be clickable and then clicks it.
@@ -64,14 +83,16 @@ class BrowserActions:
             ).click()
             
         except TimeoutException:
-            print("Button not clickable within timeout.")
-            logger.error("Button not clickable within timeout. \n")
+            logger.error(f"Buttom element is not visible within the time.")
+            raise
+
         except NoSuchElementException:
-            print(f"Button not found.")
-            logger.error(f"Button not found. \n")
+            logger.error(f"Buttom element is not found in page.")
+            raise
+
         except Exception as e:
-            print(f"Unexpected error: {e}")
-            logger.error(f"Unexpected error: {e}. \n")
+            logger.exception(f"Unexpected error while locating button: {e}.")
+            raise
 
 
     # This function checks for presence of tariff title in the results page. If it is present, it returns the tariff title text. If not, it checks for the presence of a "no files" message and returns that text if found.
@@ -94,56 +115,37 @@ class BrowserActions:
                 return None, tariff_program_text
             
             except TimeoutException:
-                print("Option not visible within timeout.")
-                logger.error("Option not visible within timeout. \n")
-
+                logger.error(f"Tariff link element is not visible within the time.")
                 return None, None
+
             except NoSuchElementException:
-                print(f"Option not found.")
-                logger.error(f"Option not found. \n")
+                logger.error(f"Tariff link element is not found in page.")
                 return None, None
+
             except Exception as e:
-                print(f"Unexpected error: {e}")
-                logger.error(f"Unexpected error: {e}. \n")
+                logger.exception(f"Unexpected error while locating link: {e}.")
                 return None, None
 
 
-    def check_visibility_of_element(self, xpath):
+    # function to check expect value/text is available in the page
+    def get_visible_value(self, xpath):
         try:
             value = self.wait.until(
                 EC.visibility_of_element_located((By.XPATH, xpath))
             )
-            return value.text.strip()
+            if value:
+                return value.text.strip()
         except TimeoutException:
-            print("Element not visible within timeout.")
-            logger.error("Element not visible within timeout. \n")
-            return False
-        except NoSuchElementException:
-            print(f"Element with XPath '{xpath}' not found.")
-            logger.error(f"Element with XPath '{xpath}' not found. \n")
-            return False
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-            logger.error(f"Unexpected error: {e}. \n")
-            return False
+            logger.error(f"Expected value/text element is not visible within the time.")
+            raise
 
-        # This function gets the company name from the results page using the provided XPath. It waits for the element to be present, retrieves its text, and returns it.
-    def get_company_name_from_results(self, xpath):
-        try:
-            company_name_element = self.wait.until(
-                EC.presence_of_element_located((By.XPATH, xpath))
-            )
-            company_name_text = company_name_element.text.strip()
-            return company_name_text
-        except TimeoutException:
-                print("Option not visible within timeout.")
-                logger.error("Option not visible within timeout. \n")
         except NoSuchElementException:
-            print(f"Option '{company_name_text}' not found.")
-            logger.error(f"Option '{company_name_text}' not found. \n")
+            logger.error(f"Expected value/text element is not found in page.")
+            raise
+
         except Exception as e:
-            print(f"Unexpected error: {e}")
-            logger.error(f"Unexpected error: {e}. \n")
+            logger.exception(f"Unexpected error while locating visible value/text: {e}.")
+            raise
 
 
     def find_last_value(self, table_xpath):
@@ -153,50 +155,60 @@ class BrowserActions:
             )
 
             rows = table.find_elements(By.TAG_NAME, "tr")
+
             if len(rows) > 1:
                 last_row = rows[-1]
                 cells = last_row.find_elements(By.TAG_NAME, "td")
                 effective_button = cells[3].find_element(By.TAG_NAME, "a")
-                return effective_button
-            else:
-                logger.info("No records found in table. \n")
-                print("No records found in the table.")
-                return None
-        except TimeoutException:
-            print("Option not visible within timeout.")
-            logger.error("Option not visible within timeout. \n")
-        except NoSuchElementException:
-            print(f"Option '{effective_button.text}' not found.")
-            logger.error(f"Option '{effective_button.text}' not found. \n")
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-            logger.error(f"Unexpected error: {e}. \n")
 
+                if effective_button.text.strip() == "Effective":
+                    return effective_button
+                else:
+                    logger.error(f"Pipeline status is not effective.")
+            else:
+                logger.error("No records found in table.")
+                return None
+            
+        except TimeoutException:
+            logger.error(f"Effective text element is not visible within the time.")
+            return None
+
+        except NoSuchElementException:
+            logger.error(f"Effective text element is not found in page.")
+            return None
+
+        except Exception as e:
+            logger.exception(f"Unexpected error while locating text: {e}.")
+            return None
         
-        # This function checks for presence of iframe using the provided XPath and switches to it if found. It includes error handling to catch any exceptions that may occur during the process, such as NoSuchElementException or TimeoutException, and prints appropriate error messages.
+
+    # This function checks for presence of iframe using the provided XPath and switches to it if found. It includes error handling to catch any exceptions that may occur during the process, such as NoSuchElementException or TimeoutException, and prints appropriate error messages.
     def switch_to_iframe(self, name):
         try:
             self.wait.until(
                 EC.frame_to_be_available_and_switch_to_it(name)
             )
         except TimeoutException:
-            print("Option not visible within timeout.")
-            logger.error("Option not visible within timeout. \n")
-        except NoSuchElementException:
-            print(f"Iframe not found.")
-            logger.error(f"Iframe not found. \n")
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-            logger.error(f"Unexpected error: {e}. \n")
+            logger.error(f"iframe is not visible within the time.")
+            return None
 
+        except NoSuchFrameException:
+            logger.error(f"iframe is not found in page.")
+            return None
+
+        except Exception as e:
+            logger.exception(f"Unexpected error while switching to iframe: {e}.")
+            return None
     
+
     def switch_to_default_content(self):
         try:
             self.driver.switch_to.default_content()
             
-        except WebDriverException as e:
-            print(f"Error switching to default content: {e}")
-            logger.error(f"Error switching to default content: {e}. \n")
+        except TimeoutException:
+            logger.error(f"parent frame is not visible within the time.")
+            return None
+
         except Exception as e:
-            print(f"Unexpected error: {e}")
-            logger.error(f"Unexpected error: {e}. \n")
+            logger.exception(f"Unexpected error while switching to parent frame: {e}.")
+            return None

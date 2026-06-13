@@ -24,8 +24,8 @@ class TariffListPage(BrowserActions):
             
             self.click_button(xpath=os.getenv("SEARCH_BUTTON_XPATH"))
             
-            company_name = self.get_company_name_from_results(xpath=os.getenv("COMPANY_NAME_RESULT_XPATH")) 
-
+            company_name = self.get_visible_value(xpath=os.getenv("COMPANY_NAME_RESULT_XPATH"))
+            
             tariff_option, tariff_text = self.get_oil_tariff_program_from_results(xpath=os.getenv("TARIFF_PROGRAM_RESULT_XPATH"), no_files_xpath=os.getenv("No_FILES_MESSAGE_XPATH"))
             
             # No file available

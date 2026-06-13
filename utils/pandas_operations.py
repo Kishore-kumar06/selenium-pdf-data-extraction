@@ -9,39 +9,37 @@ class ReadPipelines:
         self.file_path = file_path
 
         if not self.file_path:
-            logger.error("Input file path not provided or found in environment variables. \n")
-            raise ValueError("Input file path not provided or found in environment variables.")
-        
+            logger.error("Input file path not provided or found in environment variables.")
+    
 
-    # This function reads and clean pipeline names from csv file to be used for selenium operations. It removes any leading or trailing whitespace from the pipeline names and drops any rows with missing values.
+    # This function fetches the pipeline names from the csv file to be used as a input search parameter for downloading the files.
     def read_and_clean_csv(self, file_path=None):
         try:
             if file_path is None:
                 file_path = self.file_path
 
                 if not os.path.exists(file_path):
-                    logger.error(f"File not found: {file_path} \n")
-                    raise FileNotFoundError(f"File not found: {file_path}")
+                    logger.error(f"File not found: {file_path}")
                 else:
                     df = pd.read_csv(file_path)
                     
                     if df.empty:
-                        logger.warning(f"CSV file is empty: {file_path} \n")
+                        logger.error(f"CSV file is empty: {file_path}")
 
                     # Drop rows with any null values
                     df.dropna(inplace=True)
 
                     # Validate required column
                     if 'PipelineName' not in df.columns:
-                        logger.error("Column 'PipelineName' not found in CSV. \n")
-                        raise KeyError("Column 'PipelineName' not found in CSV.")
+                        logger.error("Column 'PipelineName' not found in CSV.")
 
                     df['PipelineName'] = df['PipelineName'].str.strip()
                     return df
                         
         except Exception as e:
-            logger.error(f"Error reading or cleaning CSV: {e} \n")
-            return None
+            logger.error(f"Error reading CSV file: {e}")
+            raise FileNotFoundError(f"Error reading CSV file: {e}")
+           
         
         
 
