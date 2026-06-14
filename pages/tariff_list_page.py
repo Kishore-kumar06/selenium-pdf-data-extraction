@@ -2,6 +2,7 @@ from src.selenium_operations.base_page import BrowserActions
 from utils.logfiles import setup_logger
 from dotenv import load_dotenv
 import os
+import time
 
 logger = setup_logger("tariff_list_page")
 load_dotenv()
@@ -16,13 +17,14 @@ class TariffListPage(BrowserActions):
     def process_tariff_list(self):
         try:
     
-            self.select_dropdown(program_name="Oil", xpath=os.getenv("TARIFF_PROGRAM_DROPDOWN_XPATH"))
+            self.select_dropdown(tariff_program="Oil", xpath=os.getenv("TARIFF_PROGRAM_DROPDOWN_XPATH"))
             
             pipeline = self.enter_text(text=self.pipeline_name, xpath=os.getenv("COMPANY_NAME_INPUT_XPATH"))
-            logger.info(f"Entered pipeline name: {pipeline} \n")
             print(f"Entered pipeline name: {pipeline}")
+            time.sleep(2)
             
             self.click_button(xpath=os.getenv("SEARCH_BUTTON_XPATH"))
+            time.sleep(1)
             
             company_name = self.get_visible_value(xpath=os.getenv("COMPANY_NAME_RESULT_XPATH"))
             
@@ -37,6 +39,7 @@ class TariffListPage(BrowserActions):
                 return company_name, None, tariff_text
 
             return company_name, tariff_option, tariff_text
+        
         except Exception as e:
             print(f"An error occurred while processing the tariff list: {e}")
             logger.error(f"An error occurred while processing the tariff list: {e}. \n")

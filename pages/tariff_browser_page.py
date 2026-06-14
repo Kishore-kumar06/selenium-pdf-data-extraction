@@ -5,7 +5,7 @@ import os
 from selenium.webdriver.common.by import By
 import time
 
-logger = setup_logger("tariff_list_page")
+logger = setup_logger("tariff_browser_page")
 load_dotenv()
 
 class TariffBrowserPage(BrowserActions):
@@ -16,10 +16,11 @@ class TariffBrowserPage(BrowserActions):
             
             is_effective = self.find_last_value(table_xpath=os.getenv("TABLE_ROWS_XPATH")) 
             is_effective.click() 
-            logger.info("Effective file found and clicked for the tariff program.  \n")
+            time.sleep(2)
             
             self.switch_to_iframe(name=os.getenv("IFRAME_NAME"))
             self.switch_to_iframe(name=os.getenv("IFRAME_NAME"))
+            time.sleep(1)
 
             self.click_button(xpath=os.getenv("DOWNLOAD_BUTTON_XPATH"))
             logger.info("Download button clicked successfully. Waiting for file to download. \n")
@@ -27,10 +28,10 @@ class TariffBrowserPage(BrowserActions):
 
             self.click_button(xpath=os.getenv("CLOSE_PAGE"))
            
-           
         except Exception as e:
-            print(f"An error occurred while processing the tariff browser: {e}")
             logger.error(f"An error occurred while processing the tariff browser: {e}. \n")
+            self.save_failed_scheenshots("tariff_browser_page")
+            raise
     
 
     

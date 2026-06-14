@@ -4,12 +4,17 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from utils.logfiles import setup_logger
+import os
+from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = setup_logger("base_page")
 
 # setting browser actions and operations
 class BrowserActions:
-    def __init__(self, driver, timeout=10):
+    def __init__(self, driver, timeout=30):
         self.driver = driver
         self.wait = WebDriverWait(self.driver, timeout)
 
@@ -156,18 +161,25 @@ class BrowserActions:
 
             rows = table.find_elements(By.TAG_NAME, "tr")
 
-            if len(rows) > 1:
-                last_row = rows[-1]
-                cells = last_row.find_elements(By.TAG_NAME, "td")
-                effective_button = cells[3].find_element(By.TAG_NAME, "a")
-
-                if effective_button.text.strip() == "Effective":
-                    return effective_button
-                else:
-                    logger.error(f"Pipeline status is not effective.")
-            else:
+            if len(rows) <= 1:
                 logger.error("No records found in table.")
                 return None
+            
+            for row in reversed(rows[1:]):
+
+                cells = row.find_elements(By.TAG_NAME, "td")
+
+                if len(cells) < 4:
+                    continue
+
+                effective_button = cells[3].find_element(By.TAG_NAME, "a")
+
+                status = (effective_button.text.strip())
+
+                if status == "Effective":
+                    logger.info("Effective pipeline record found.")
+                    
+                    return effective_button
             
         except TimeoutException:
             logger.error(f"Effective text element is not visible within the time.")
@@ -212,3 +224,42 @@ class BrowserActions:
         except Exception as e:
             logger.exception(f"Unexpected error while switching to parent frame: {e}.")
             return None
+
+    
+    def save_failed_scheenshots(self, file):
+        try:
+            if self.driver:
+                
+                screenshot_path = os.getenv("FAILED_SCREENSHOTS_PATH")
+
+                if not screenshot_path:
+                    logger.error("FAILED_SCREENSHOTS_PATH not found in .env")
+                    return
+                
+                os.makedirs(screenshot_path, exist_ok=True)
+                
+                # # screenshot_file = f"{screenshot_path}_{file}.png"
+                # # full_path = os.path.join(screenshot_path, screenshot_file)
+
+                timestamp = (
+                    datetime.now()
+                    .strftime(
+                        "%Y%m%d_%H%M%S"
+                    )
+                )
+
+                screenshot_file = (
+                    f"{file}_"
+                    f"{timestamp}.png"
+                )
+
+                full_path = os.path.join(
+                    screenshot_path,
+                    screenshot_file
+                )
+
+                self.driver.save_screenshot(full_path)
+                logger.info(f"Successfully saved failed screenshot. at {full_path}")
+
+        except Exception as er:
+            logger.exception(f"An error occured while saving failed screenshots {er}.")

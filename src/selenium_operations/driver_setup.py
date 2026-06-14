@@ -3,6 +3,7 @@ from selenium.common import TimeoutException, WebDriverException
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from utils.logfiles import setup_logger
 
+
 logger = setup_logger("driver_setup")
 
 # initializing the Selenium driver and driver components
@@ -21,12 +22,14 @@ class DriverSetup:
         }
 
         options.add_experimental_option("prefs", prefs)
+        options.add_experimental_option({"excludeSwitches",["enable-automation"], "useAutomationExtension",False})
 
         if self.headless:
             options.add_argument("--headless=new")
 
         options.add_argument("--disable-gpu")
         options.add_argument("--start-maximized")
+        options.add_argument("--disable-blink-features=AutomationControlled")
 
         return options
 
@@ -114,5 +117,5 @@ class DriverSetup:
                 }
             )
         except Exception as er:
-            logger.warning(f"File download path has not initialized properly. {path} - {er}.")
+            logger.exception(f"File download path has not initialized properly. {path} - {er}.")
 
