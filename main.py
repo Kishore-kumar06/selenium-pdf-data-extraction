@@ -2,8 +2,6 @@
 from utils.logfiles import setup_logger
 from src.selenium_operations.download_files import download_files
 from src.pdf_operations.pdf_extraction.final_export import export_data
-import time
-import os
 from dotenv import load_dotenv
 
 load_dotenv()

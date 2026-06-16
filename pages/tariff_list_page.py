@@ -16,12 +16,11 @@ class TariffListPage(BrowserActions):
 
     def process_tariff_list(self):
         try:
-    
-            self.select_dropdown(tariff_program="Oil", xpath=os.getenv("TARIFF_PROGRAM_DROPDOWN_XPATH"))
+            self.select_dropdown(tariff_program=os.getenv("TARIFF_PROGRAM_VALUE"), xpath=os.getenv("TARIFF_PROGRAM_DROPDOWN_XPATH"))
             
             pipeline = self.enter_text(text=self.pipeline_name, xpath=os.getenv("COMPANY_NAME_INPUT_XPATH"))
-            print(f"Entered pipeline name: {pipeline}")
-            time.sleep(2)
+            logger.info(f"Entered pipeline name: {pipeline}")
+            time.sleep(1)
             
             self.click_button(xpath=os.getenv("SEARCH_BUTTON_XPATH"))
             time.sleep(1)
@@ -41,9 +40,8 @@ class TariffListPage(BrowserActions):
             return company_name, tariff_option, tariff_text
         
         except Exception as e:
-            print(f"An error occurred while processing the tariff list: {e}")
-            logger.error(f"An error occurred while processing the tariff list: {e}. \n")
-
+            logger.error(f"An error occurred while processing the tariff list: {e}.")
+            self.save_failed_screenshots(f"{self.pipelinename}")
             return None, None, None
     
 

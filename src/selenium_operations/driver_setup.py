@@ -18,18 +18,22 @@ class DriverSetup:
         options = ChromeOptions()
 
         prefs = {
-            "profile.managed_default_content_settings.images": 2
+            "profile.managed_default_content_settings.images": 2,
+            "download.prompt_for_download": False
         }
 
         options.add_experimental_option("prefs", prefs)
-        options.add_experimental_option({"excludeSwitches",["enable-automation"], "useAutomationExtension",False})
+        options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        options.add_experimental_option("useAutomationExtension", False)
 
         if self.headless:
             options.add_argument("--headless=new")
+            options.add_argument("--window-size=1920,1080")
 
-        options.add_argument("--disable-gpu")
         options.add_argument("--start-maximized")
         options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
 
         return options
 
@@ -60,17 +64,16 @@ class DriverSetup:
             return self.driver
 
         except WebDriverException as e:
-            logger.error(f"Error while initializing the browser: {e}.")
-            return None
+            logger.error(f"Failed to initialize the browser session: {e}")
+            raise
 
     # Open URL
-    def open_url(self, url):
+    def open_url(self, url, timeout=30):
         try:
             if self.driver:
                 logger.info(f"Opening URL: {url}.")
                 self.driver.get(url)
-                
-                self.driver.set_page_load_timeout(30)
+                self.driver.set_page_load_timeout(timeout)
             else:
                 logger.warning("Driver not initialized. Call setup_browser().")
         except TimeoutException as er:
@@ -81,21 +84,27 @@ class DriverSetup:
     # Quit browser (BEST practice)
     def quit_browser(self):
         if self.driver:
-            logger.info("Quiting browser...")
-            self.driver.quit()
-            self.driver = None
+            logger.info("Quiting active browser session...")
+            try:
+                self.driver.quit()
+            finally:
+                self.driver = None
         else:
             logger.warning("No active browser session.")
+            raise
 
 
     # Close window
     def close_browser(self):
         if self.driver:
-            logger.info("Closing Browser...")
-            self.driver.close()
-            self.driver = None
+            logger.info("Closing active browser session...")
+            try:
+                self.driver.close()
+            finally:
+                self.driver = None
         else:
             logger.warning("No active current window.")
+            raise
 
 
     # Navigate back
@@ -118,4 +127,5 @@ class DriverSetup:
             )
         except Exception as er:
             logger.exception(f"File download path has not initialized properly. {path} - {er}.")
+            raise
 

@@ -1,5 +1,5 @@
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException, NoSuchFrameException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, NoSuchFrameException
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -27,14 +27,12 @@ class BrowserActions:
             )
 
             select = Select(dropdown)
-            if tariff_program != "Oil":
-                error_message = (f"Invalid program name '{tariff_program}'. Only 'Oil' is supported.")
-
+            if tariff_program != os.getenv("TARIFF_PROGRAM_VALUE"):
+                error_message = (f"Traiff program value '{tariff_program}'. is not available in the dropdown.")
                 logger.error(error_message)
                 raise ValueError(error_message)
                 
             select.select_by_visible_text(tariff_program)
-
             logger.info(f"Successfully selected {tariff_program} from the dropdown")
 
         except TimeoutException:
@@ -49,7 +47,7 @@ class BrowserActions:
             raise
 
         except Exception as e:
-            logger.exception(f"Unexpected error while locating dropdown: {e}.")
+            logger.error(f"Dropdown selection failed for locator {xpath}: {str(e)}")
             raise
 
 
@@ -76,9 +74,8 @@ class BrowserActions:
             raise
 
         except Exception as e:
-            logger.exception(f"Unexpected error while locating textbox: {e}.")
+            logger.error(f"Failed typing value into locator {xpath}: {str(e)}")
             raise
-
 
     # Button click function to click the dynamic buttons in website y specifying dynamic xpath as parameter. It waits for the button to be clickable and then clicks it.
     def click_button(self, xpath):
@@ -96,7 +93,7 @@ class BrowserActions:
             raise
 
         except Exception as e:
-            logger.exception(f"Unexpected error while locating button: {e}.")
+            logger.error(f"Target button interaction failed on locator {xpath}: {str(e)}")
             raise
 
 
@@ -121,15 +118,15 @@ class BrowserActions:
             
             except TimeoutException:
                 logger.error(f"Tariff link element is not visible within the time.")
-                return None, None
+                raise
 
             except NoSuchElementException:
                 logger.error(f"Tariff link element is not found in page.")
-                return None, None
+                raise
 
             except Exception as e:
                 logger.exception(f"Unexpected error while locating link: {e}.")
-                return None, None
+                raise
 
 
     # function to check expect value/text is available in the page
@@ -183,15 +180,15 @@ class BrowserActions:
             
         except TimeoutException:
             logger.error(f"Effective text element is not visible within the time.")
-            return None
+            raise
 
         except NoSuchElementException:
             logger.error(f"Effective text element is not found in page.")
-            return None
+            raise
 
         except Exception as e:
             logger.exception(f"Unexpected error while locating text: {e}.")
-            return None
+            raise
         
 
     # This function checks for presence of iframe using the provided XPath and switches to it if found. It includes error handling to catch any exceptions that may occur during the process, such as NoSuchElementException or TimeoutException, and prints appropriate error messages.
@@ -201,16 +198,16 @@ class BrowserActions:
                 EC.frame_to_be_available_and_switch_to_it(name)
             )
         except TimeoutException:
-            logger.error(f"iframe is not visible within the time.")
-            return None
+            logger.error(f"Could not switch contexts to target frame {name}: {str(e)}")
+            raise
 
         except NoSuchFrameException:
             logger.error(f"iframe is not found in page.")
-            return None
+            raise
 
         except Exception as e:
             logger.exception(f"Unexpected error while switching to iframe: {e}.")
-            return None
+            raise
     
 
     def switch_to_default_content(self):
@@ -219,14 +216,14 @@ class BrowserActions:
             
         except TimeoutException:
             logger.error(f"parent frame is not visible within the time.")
-            return None
+            raise
 
         except Exception as e:
             logger.exception(f"Unexpected error while switching to parent frame: {e}.")
-            return None
+            raise
 
     
-    def save_failed_scheenshots(self, file):
+    def save_failed_screenshots(self, file):
         try:
             if self.driver:
                 
@@ -237,29 +234,16 @@ class BrowserActions:
                     return
                 
                 os.makedirs(screenshot_path, exist_ok=True)
-                
-                # # screenshot_file = f"{screenshot_path}_{file}.png"
-                # # full_path = os.path.join(screenshot_path, screenshot_file)
 
-                timestamp = (
-                    datetime.now()
-                    .strftime(
-                        "%Y%m%d_%H%M%S"
-                    )
-                )
+                timestamp = (datetime.now().strftime("%Y%m%d_%H%M%S"))
 
-                screenshot_file = (
-                    f"{file}_"
-                    f"{timestamp}.png"
-                )
+                screenshot_file = (f"{file}_{timestamp}.png")
 
-                full_path = os.path.join(
-                    screenshot_path,
-                    screenshot_file
-                )
+                full_path = os.path.join(screenshot_path, screenshot_file)
 
                 self.driver.save_screenshot(full_path)
                 logger.info(f"Successfully saved failed screenshot. at {full_path}")
 
         except Exception as er:
             logger.exception(f"An error occured while saving failed screenshots {er}.")
+            raise
