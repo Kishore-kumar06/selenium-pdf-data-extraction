@@ -1,60 +1,47 @@
-# Pipeline Tariff Extraction Automation Framework (Work In Progress - 50% Completed)
+# Automated PDF Data Extraction Project (Ongoing | 70% Completed)
 
 ## Project Overview
 
-This project is a **Python-based web automation framework** developed to automate the extraction of tariff-related documents from a web portal for multiple oil pipelines.
+This project is a **Python-based web automation & PDF Data Extraction** developed to automate and extract and load the tariff-related documents from a web portal for multiple oil pipelines.
 
-The automation process uses **Selenium with Page Object Model (POM)** architecture to navigate through a tariff website, search for pipeline-specific tariff information, and download the latest available files into structured folders.
+The automation process uses **Selenium with Page Object Model (POM)** architecture to navigate through a tariff website, search for pipeline-specific tariff information, and download the latest available effective files into the well structured directories.
 
-The project is currently **50% completed**.
-
-### Current Completion Status: 50%
+### Current Completion Status: 70%
 
 ✅ **Completed**
 - Website automation using Selenium
 - Page Object Model (POM) implementation
 - Modular framework design
 - Pipeline input handling from files
-- Dropdown selection automation
+- Dropdown selection
 - Search and navigation flow
 - Dynamic handling of unavailable pipelines
 - Multi-tab navigation
-- Latest tariff file selection
+- Latest effective file selection
 - Automated file download
 - Pipeline-wise folder organization
 - Logging implementation
+- Retry mechanism implementation
+- Check point mechanism implementation
+- Exception Handling
 - Excel tracker/report generation
 - Environment variable configuration using `.env`
 
 🚧 **In Progress**
 - PDF table extraction using `pdfplumber`
-- Data transformation and cleaning
+- Data validation and cleaning
 - CSV generation from extracted tables
-- Validation and error recovery enhancements
+- Error recovery enhancements
 - End-to-end reporting
+- Rodust Exception Handling
+- File Handling
+- Testing
 
 ---
 
 ## Business Problem
 
-Manually downloading tariff files for multiple pipelines is repetitive and time-consuming.
-
-This framework automates:
-
-1. Opening the tariff website
-2. Selecting the **Oil** category
-3. Reading pipeline names from input files
-4. Searching pipeline tariffs
-5. Handling unavailable pipelines
-6. Navigating tariff pages
-7. Selecting the latest tariff document
-8. Downloading files automatically
-9. Storing files in pipeline-specific folders
-
-Future enhancement includes:
-
-10. Extracting tabular data from downloaded PDFs  
-11. Converting extracted data into CSV format for analytics
+Manually downloading tariff files for multiple pipelines and mainly extracting and loading them into CSV files from PDF tables is repetitive and time-consuming and would take around 8+ hours per session.
 
 ---
 
@@ -73,9 +60,11 @@ Check result
    ├── No tariff available → Skip pipeline
    └── Tariff exists
             ↓
-       Open tariff page
+       Open tariff browser page
             ↓
-       Select latest tariff link
+       Select specific tariff link
+            ↓
+       Select latest effective tariff link
             ↓
        Download PDF
             ↓

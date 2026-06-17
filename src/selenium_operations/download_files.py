@@ -17,18 +17,20 @@ def selenium_download_process(driver, driver_setup, current_dir):
         df = data.read_and_clean_csv()
 
         pipelines = df['PipelineName']
+        
+        tracker_file = File_And_Tracker(main_path=current_dir)
 
-        total_pipelines = len(pipelines)
-        completed_pipelines = 0
+        completed_pipelines = tracker_file.get_processed_files()
 
         for pipeline_name in pipelines:
             logger.info(f"Retrieved pipeline {pipeline_name}.")
+
+            if pipeline_name in completed_pipelines:
+                logger.info(f"Pipeline {pipeline_name} already exist. Skipping...")
+                continue
         
             start_time = time.time()
-
             try:
-                tracker_file = File_And_Tracker(main_path=current_dir, pipelines=pipeline_name)
-                
                 process_first_page = TariffListPage(driver, pipelinename=pipeline_name)
                 process_second_page = TariffBrowserPage(driver)
 
@@ -40,6 +42,7 @@ def selenium_download_process(driver, driver_setup, current_dir):
                     logger.info(f"Skipping {pipeline_name} pipeline - no files available")
 
                     tracker_file.create_excel_tracker_files(
+                        pipeline=pipeline_name,
                         company_name=company_name,
                         tariff_program=tariff_text,
                         is_effective="No",
@@ -52,7 +55,7 @@ def selenium_download_process(driver, driver_setup, current_dir):
 
                 tariff_option.click()
 
-                pipeline_folder = tracker_file.create_pipeline_folder()
+                pipeline_folder = tracker_file.create_pipeline_folder(pipeline_name)
 
                 download_dir = os.path.abspath(pipeline_folder)
 
@@ -61,7 +64,7 @@ def selenium_download_process(driver, driver_setup, current_dir):
 
                 process_second_page.process_tariff_browser(pipeline_name) 
 
-                file = tracker_file.get_latest_file(file_path=download_dir)
+                file = tracker_file.get_latest_file(file_path=download_dir, pipeline=pipeline_name)
                 if file:
                     logger.info(f"Latest downloaded file: {file}.")
 
@@ -69,6 +72,7 @@ def selenium_download_process(driver, driver_setup, current_dir):
                 time_taken = end_time - start_time
                 
                 tracker_file.create_excel_tracker_files(
+                    pipeline=pipeline_name,
                     company_name=company_name, 
                     tariff_program=tariff_text, 
                     is_effective="Yes", 
@@ -76,18 +80,14 @@ def selenium_download_process(driver, driver_setup, current_dir):
                     time_taken=time_taken
                 )
 
-                completed_pipelines += 1
-                print(completed_pipelines)
+                driver_setup.navigate_back()
+                driver_setup.navigate_back()
 
-                driver_setup.navigate_back()
-                driver_setup.navigate_back()
+                tracker_file.write_downloaded_pipelines(pipeline_name)
  
             except Exception as e:
                 logger.exception(f"Pipeline failed: {pipeline_name}")
 
-        if completed_pipelines == total_pipelines:
-            print("Done")
-    
     except Exception as e:
         logger.exception(f"An error occurred while downloading file for {pipeline_name}: {e}")
    
