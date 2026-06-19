@@ -96,7 +96,7 @@ def selenium_download_process(driver, driver_setup, current_dir):
 def download_files():
 
     try:
-        retries = 3
+        retries = 5
         wait_time = 2
         success = False
 
@@ -107,9 +107,10 @@ def download_files():
             try:
                 if check_connection() == False:
                     logger.error("Internet Disconnected")
+                    print("Internet Disconnected")
                     raise ConnectionError("Internet Disconnected")
                 
-                driver_setup = DriverSetup(browser_name="chrome", headless=True)
+                driver_setup = DriverSetup(browser_name="chrome", headless=False)
 
                 current_dir = os.getcwd()
 
@@ -122,7 +123,7 @@ def download_files():
                 success = True
                 break
 
-            except Exception as e:
+            except (Exception, ConnectionError) as e:
                 logger.exception(f"Attempt {attempt} failed. {e}")
                 print(f"Attempt {attempt} failed. {e}")
                 

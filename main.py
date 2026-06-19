@@ -17,9 +17,9 @@ def pdf_extraction_process():
 
 
 def main():
-    download_files()
+    # download_files()
 
-    # pdf_extraction_process()
+    pdf_extraction_process()
 
 
 if __name__=="__main__":

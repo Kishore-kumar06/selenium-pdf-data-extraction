@@ -14,6 +14,9 @@ SUPPORTED_PIPELINES = {
     "ANDEAVOR LOGISTICS RIO PIPELINE",
     "ARROWHEAD INGLESIDE PIPELINE",
     "BAKKEN PIPELINE",
+    "BENGAL PIPELINE",
+    "BLACK LAKE PIPELINE",
+    "BLUESTEM PIPELINE",
     "BATON ROUGE PIPELINE",
     "CHEYENNE PIPELINE",
     "DIAMOND PIPELINE",
@@ -85,8 +88,6 @@ def is_borderless_pipeline(file_path):
 def export_data():
     try:
         start = datetime.now()
-        
-        tariff_data = []
 
         processed_count = 0
         skipped_count = 0
@@ -148,16 +149,13 @@ def export_data():
                         print(f"No table data extracted: {file_name}")
                         continue
 
-                    tariff_data.extend(data)
-                    final_data = pd.DataFrame(tariff_data)
+                    final_data = pd.DataFrame(data)
 
                     output_file_name = (os.path.splitext(file_name)[0]+ ".csv")
 
                     output_file = os.path.join(os.getenv("EXTRACTED_DATA_OUTPUT_PATH"),output_file_name)
 
                     final_data.to_csv(output_file, index=False, encoding="utf-8")
-
-                    tariff_data.clear()
 
                     processed_count += 1
 
