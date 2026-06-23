@@ -4,98 +4,43 @@ from .data_lookup import DataLookup
 
 class TableHeaderHelper:
 
+    ORIGIN_PREFIXES = ("origin point", "origin", "origins", "from", "receipt")
+    DESTINATION_PREFIXES = ("destination point", "destination", "destinations", "delivery", "to")
+    RATE_PREFIXES = ("uncommitted", "committed", "maximum", "volume", "rate", "rates", "base", "joint", "incentive", "contract")
+    VOLUME_TUER_PREFIXES = ("total", "volume tier", "st", "tier", "commitment level")
+
     @staticmethod
     def is_origin_header(text):
-
         if not text:
             return False
-
-        text = DataLookup.normalize_header_cell(text)
-
-        origin_headers = (
-            "origin point",
-            "origin",
-            "origins",
-            "from",
-            "from:",
-            "origin(s)",
-            "receipt",
-            "receipt points/origin",
-            "receipt points origin"
-        )
-
-        return text.startswith(origin_headers)
+        cleaned_text = DataLookup.normalize_header_cell(text)
+        return cleaned_text.startswith(TableHeaderHelper.ORIGIN_PREFIXES)
+    
 
     @staticmethod
     def is_destination_header(text):
-
         if not text:
             return False
-
-        text = DataLookup.normalize_header_cell(text)
-
-        destination_headers = (
-            "destination point",
-            "destination",
-            "destination(s)",
-            "destinations",
-            "destination-dest",
-            "delivery/destination",
-            "delivery destination",
-            "to"
-        )
-
-        return text.startswith(destination_headers)
+        cleaned_text = DataLookup.normalize_header_cell(text)
+        return cleaned_text.startswith(TableHeaderHelper.DESTINATION_PREFIXES)
+    
 
     @staticmethod
     def is_rate_header(text):
-
         if not text:
             return False
-
-        text = DataLookup.normalize_header_cell(text)
-
-        rate_headers = (
-           "uncommitted",
-           "committed",
-           "maximum",
-           "volume",
-           "rate",
-           "rates",
-           "rate:(2)",
-           "base",
-           "intersect",
-           "joint",
-           "non-anchor",
-           "incentive",
-           "contract",
-           "for",
-           "DESTINATION –",
-           "long",
-           "anchor",
-           "pla"
-
-        )
-
-        return text.startswith(rate_headers)
+        cleaned_text = DataLookup.normalize_header_cell(text)
+        
+        # Guard against short word collisions by checking exact matches for broad words
+        if cleaned_text in ("for", "long", "pla"):
+            return True
+            
+        return cleaned_text.startswith(TableHeaderHelper.RATE_PREFIXES)
     
+
     @staticmethod
     def is_volume_tier_header(text):
-
         if not text:
             return False
-
-        text = DataLookup.normalize_header_cell(text)
-
-        volume_tier = (
-           "total",
-           "volume tier",
-           "st",
-           "minimum volume",
-           "fixed volume",
-           "actual shipments",
-           "terms",
-           "term"
-        )
-
-        return text.startswith(volume_tier)
+        cleaned_text = DataLookup.normalize_header_cell(text)
+        return cleaned_text.startswith(TableHeaderHelper.VOLUME_TUER_PREFIXES)

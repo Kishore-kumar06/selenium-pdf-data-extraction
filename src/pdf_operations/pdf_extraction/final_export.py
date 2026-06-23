@@ -118,19 +118,13 @@ def export_data():
             try:
                 with pdfplumber.open(file) as pdf:
 
-                     # -------------------------
+                    # -------------------------
                     # Borderless Extraction
                     # -------------------------
 
                     if is_borderless_pipeline(file):
 
-                        # print(type(pdf))
-                        # print(f"Processing borderless PDF: {file_name}")
-                        # print(file)
-
-                        # print("Using borderless extraction")
-
-                        data = (extract_borderless_data(pdf, source_name=file))
+                        data = extract_borderless_data(pdf, source_name=file)
 
                     # -------------------------
                     # Normal Extraction

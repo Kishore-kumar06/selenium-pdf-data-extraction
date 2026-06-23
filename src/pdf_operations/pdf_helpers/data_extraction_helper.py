@@ -9,9 +9,13 @@ class PDFHelpers:
         self.text = text
 
     def extract_pipelinename_metadata(self):
-        self.pipeline_name = ""
+        if not self.pdf.pages:
+            return self.pipeline_name
 
         page1_text = self.pdf.pages[0].extract_text()
+        if not page1_text:
+            return self.pipeline_name
+            
         lines = [line.strip() for line in page1_text.splitlines() if line.strip()]
 
         suffix_pattern = r"(?:LLC|LP|L\.P\.?|L\.L\.C\.?|Inc|INC|Ltd|COMPANY)"
