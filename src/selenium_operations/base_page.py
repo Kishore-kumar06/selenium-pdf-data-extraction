@@ -14,7 +14,7 @@ logger = setup_logger("base_page")
 
 # setting browser actions and operations
 class BrowserActions:
-    def __init__(self, driver, timeout=30):
+    def __init__(self, driver, timeout=15):
         self.driver = driver
         self.wait = WebDriverWait(self.driver, timeout)
 

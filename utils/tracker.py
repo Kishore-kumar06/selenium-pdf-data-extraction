@@ -74,9 +74,9 @@ class File_And_Tracker:
             raise
 
    
-    def get_latest_file(self, file_path, pipeline, timeout=30):
+    def get_latest_file(self, source_file_path, destination_file_path, pipeline, timeout=30):
         try:
-            target_path = os.path.abspath(file_path)
+            target_path = os.path.abspath(source_file_path)
             if not os.path.exists(target_path):
                 raise FileNotFoundError(f"Folder not found: {target_path}")
 
@@ -119,7 +119,9 @@ class File_And_Tracker:
             # Rename file
             os.rename(downloaded_file, latest_file_path)
 
-            return latest_file_path
+            shutil.move(latest_file_path, destination_file_path)
+
+            return destination_file_path
         except Exception as e:
             logger.exception(f"Error getting latest file: {e}.")
             return None
@@ -147,6 +149,7 @@ class File_And_Tracker:
         except Exception as e:
             logger.exception(f"Processed pipelines file do not exist at {processed_file_directory} directory. {e}")
             raise FileNotFoundError(f"Processed pipelines file do not exist at {processed_file_directory} directory.")  
+
 
     def write_downloaded_pipelines(self, pipeline):
         try:

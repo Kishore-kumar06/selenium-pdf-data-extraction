@@ -23,6 +23,10 @@ def selenium_download_process(driver, driver_setup, current_dir):
         completed_pipelines = tracker_file.get_processed_files()
 
         for pipeline_name in pipelines:
+
+            if check_connection() == False:
+                    logger.error("Internet Disconnected")
+
             logger.info(f"Retrieved pipeline {pipeline_name}.")
 
             if pipeline_name in completed_pipelines:
@@ -57,14 +61,14 @@ def selenium_download_process(driver, driver_setup, current_dir):
 
                 pipeline_folder = tracker_file.create_pipeline_folder(pipeline_name)
 
-                download_dir = os.path.abspath(pipeline_folder)
+                download_dir = os.path.abspath(os.getenv("DOWNLOAD_DIR"))
 
                 if download_dir:
                     driver_setup.set_download_path(download_dir)
 
                 process_second_page.process_tariff_browser(pipeline_name) 
 
-                file = tracker_file.get_latest_file(file_path=download_dir, pipeline=pipeline_name)
+                file = tracker_file.get_latest_file(source_file_path=download_dir, destination_file_path=pipeline_folder, pipeline=pipeline_name)
                 if file:
                     logger.info(f"Latest downloaded file: {file}.")
 
@@ -105,12 +109,7 @@ def download_files():
             driver = None
         
             try:
-                if check_connection() == False:
-                    logger.error("Internet Disconnected")
-                    print("Internet Disconnected")
-                    raise ConnectionError("Internet Disconnected")
-                
-                driver_setup = DriverSetup(browser_name="chrome", headless=False)
+                driver_setup = DriverSetup(browser_name="chrome", headless=True)
 
                 current_dir = os.getcwd()
 
