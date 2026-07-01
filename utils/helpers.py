@@ -1,5 +1,7 @@
 import os
 from dotenv import load_dotenv
+import random
+import time
 
 load_dotenv()
 
@@ -18,3 +20,8 @@ def load_pdf_files():
 
     except Exception as er:
         print(f"An error occurred while fetching transformed files: {er}")
+
+
+def delay_process():
+    delay = random.uniform(1.0, 3.0)
+    return delay

@@ -14,19 +14,19 @@ logger = setup_logger("base_page")
 
 # setting browser actions and operations
 class BrowserActions:
-    def __init__(self, driver, timeout=15):
+    def __init__(self, driver, timeout=30):
         self.driver = driver
         self.wait = WebDriverWait(self.driver, timeout)
 
     # Select dropdown value by visible text
     def select_dropdown(self, tariff_program, xpath):
         try:
-
             dropdown = self.wait.until(
                 EC.visibility_of_element_located((By.XPATH, xpath))
             )
 
             select = Select(dropdown)
+
             if tariff_program != os.getenv("TARIFF_PROGRAM_VALUE"):
                 error_message = (f"Traiff program value '{tariff_program}'. is not available in the dropdown.")
                 logger.error(error_message)
@@ -35,12 +35,8 @@ class BrowserActions:
             select.select_by_visible_text(tariff_program)
             logger.info(f"Successfully selected {tariff_program} from the dropdown")
 
-        except TimeoutException:
-            logger.error(f"Dropdown element for {tariff_program} is not visible within the time.")
-            raise
-
-        except NoSuchElementException:
-            logger.error(f"Dropdown element for {tariff_program} is not found in page.")
+        except (TimeoutException, NoSuchElementException) as e:
+            logger.error(f"Dropdown localization visibility failure on {xpath}: {str(e)}")
             raise
         
         except ValueError:
@@ -198,7 +194,7 @@ class BrowserActions:
                 EC.frame_to_be_available_and_switch_to_it(name)
             )
         except TimeoutException:
-            logger.error(f"Could not switch contexts to target frame {name}: {str(e)}")
+            logger.error(f"Could not switch contexts to target frame {name}:")
             raise
 
         except NoSuchFrameException:

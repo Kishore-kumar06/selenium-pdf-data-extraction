@@ -142,10 +142,8 @@ class File_And_Tracker:
                 return set()
             
             with open(tracker_file_path, 'r') as f:
-                if f.readline() == "":
-                    raise ValueError(f"No pipelenes have been downloaded.")
-                
                 return set(line.strip() for line in f if line.strip())
+            
         except Exception as e:
             logger.exception(f"Processed pipelines file do not exist at {processed_file_directory} directory. {e}")
             raise FileNotFoundError(f"Processed pipelines file do not exist at {processed_file_directory} directory.")  

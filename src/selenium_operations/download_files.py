@@ -88,6 +88,7 @@ def selenium_download_process(driver, driver_setup, current_dir):
                 driver_setup.navigate_back()
 
                 tracker_file.write_downloaded_pipelines(pipeline_name)
+                print(f"Downloaded -- {pipeline_name}")
  
             except Exception as e:
                 logger.exception(f"Pipeline failed: {pipeline_name}")
@@ -109,8 +110,8 @@ def download_files():
             driver = None
         
             try:
-                driver_setup = DriverSetup(browser_name="chrome", headless=True)
-
+                driver_setup = DriverSetup(browser_name="chrome", headless=False)
+        
                 current_dir = os.getcwd()
 
                 driver = driver_setup.setup_browser() # driver setup

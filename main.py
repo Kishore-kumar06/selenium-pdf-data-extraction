@@ -30,3 +30,7 @@ def main():
 
 if __name__=="__main__":
     main()
+
+
+# 57 files in 0:25:09.484016
+# 6 files in 0:08:06.835463

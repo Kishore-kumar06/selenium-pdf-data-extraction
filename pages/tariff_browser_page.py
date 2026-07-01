@@ -1,5 +1,6 @@
 from src.selenium_operations.base_page import BrowserActions
 from utils.logfiles import setup_logger
+from utils.helpers import delay_process
 from dotenv import load_dotenv
 import os
 import time
@@ -11,6 +12,7 @@ class TariffBrowserPage(BrowserActions):
     
     def process_tariff_browser(self, pipelinename):
         try:
+            delay = delay_process()
             self.click_button(xpath=os.getenv("ACTUAL_TARIFF_PROGRAM_XPATH"))
             
             is_effective = self.find_last_value(table_xpath=os.getenv("TABLE_ROWS_XPATH"))
@@ -24,7 +26,7 @@ class TariffBrowserPage(BrowserActions):
 
             self.click_button(xpath=os.getenv("DOWNLOAD_BUTTON_XPATH"))
             logger.info("Download button clicked successfully. Waiting for file to download.")
-            time.sleep(2)  # Wait for the download to start
+            time.sleep(delay)  # Wait for the download to start
 
             self.click_button(xpath=os.getenv("CLOSE_PAGE"))
            

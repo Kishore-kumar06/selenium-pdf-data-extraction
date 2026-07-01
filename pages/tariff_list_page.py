@@ -1,5 +1,6 @@
 from src.selenium_operations.base_page import BrowserActions
 from utils.logfiles import setup_logger
+from utils.helpers import delay_process
 from dotenv import load_dotenv
 import os
 import time
@@ -16,14 +17,15 @@ class TariffListPage(BrowserActions):
 
     def process_tariff_list(self):
         try:
+            delay = delay_process()
             self.select_dropdown(tariff_program=os.getenv("TARIFF_PROGRAM_VALUE"), xpath=os.getenv("TARIFF_PROGRAM_DROPDOWN_XPATH"))
             
             pipeline = self.enter_text(text=self.pipeline_name, xpath=os.getenv("COMPANY_NAME_INPUT_XPATH"))
             logger.info(f"Entered pipeline name: {pipeline}")
-            time.sleep(1)
+            time.sleep(delay)
             
             self.click_button(xpath=os.getenv("SEARCH_BUTTON_XPATH"))
-            time.sleep(1)
+            time.sleep(delay)
             
             company_name = self.get_visible_value(xpath=os.getenv("COMPANY_NAME_RESULT_XPATH"))
             
@@ -41,7 +43,7 @@ class TariffListPage(BrowserActions):
         
         except Exception as e:
             logger.error(f"An error occurred while processing the tariff list: {e}.")
-            self.save_failed_screenshots(f"{self.pipelinename}")
+            self.save_failed_screenshots(f"{self.pipeline_name}")
             return None, None, None
     
 
